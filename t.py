@@ -23,9 +23,6 @@ else:
 
 
 
-    
-
-
 def append_unique_sentences(file_path, sentences, fi):
     existing_sentences = set()
 
