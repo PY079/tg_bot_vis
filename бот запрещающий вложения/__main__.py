@@ -4,7 +4,7 @@ import logging
 from data import token_tg_b, id_chat
 from telebot import types
 from database import save_story, get_stories, delete_story
-from t import check_advertising_text
+from adv_check import check_advertising_text
 
 os.system('cls')
 
