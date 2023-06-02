@@ -1,10 +1,26 @@
 import telebot
 import os
 import logging
-from data import token_tg_b, id_chat
+from data import token_tg_b, id_chat, id_acc
 from telebot import types
 from database import save_story, get_stories, delete_story
 from adv_check import check_advertising_text
+from send_message_datab import add_user, update_user_active_status
+
+
+# Функция для рассылки новостей с обработкой ошибок
+def send_newsletter(users):
+    for user in users:
+        try:
+            # Код для отправки новостей пользователю
+            # ...
+            # Если рассылка успешна, не выполняется блок except и пользователь остается активным
+            pass
+        except Exception as e:
+            # В случае ошибки обновляем статус активности пользователя на False
+            update_user_active_status(user.id, False)
+            print(f"Ошибка при отправке новостей пользователю {user.id}: {str(e)}")
+
 
 os.system('cls')
 
@@ -84,6 +100,17 @@ def publish_stories():
             delete_story(story.user_id, story.story_text)  # Удалить историю по её ID, а не по user_id и story_text
 
             break  # Прервать цикл после удаления истории
+
+
+#  Команда sendall, доступная только администратору
+@bot.message_handler(commands=["sendall"])
+def send_all(message: types.Message):
+    if message.from_user.id == id_acc:  # Замените ADMIN_ID на фактический ID администратора
+        users = session.query(User).all()
+        send_newsletter(users)
+        bot.send_message(message.chat.id, "Рассылка выполнена успешно!")
+    else:
+        bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды.")
 
 
 if __name__ == '__main__':
