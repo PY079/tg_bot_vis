@@ -1,6 +1,7 @@
 import telebot
 from data import token_tg_b, id_chat
 
+
 bot = telebot.TeleBot(token_tg_b)
 @bot.message_handler(content_types=['photo','video','audio','document'])
 def handle_text(message):
@@ -30,6 +31,7 @@ def handle_text(message):
         file_unique_id = audio.file_unique_id
         file_size = audio.file_size
         bot.send_audio(id_chat ,caption=f'тест audio\n{message.caption}', audio=file_id)
+        # bot.send_voice(id_chat ,caption=f'тест voice\n{message.caption}',voice=file_id)
 
         # Ваш код обработки аудио
 

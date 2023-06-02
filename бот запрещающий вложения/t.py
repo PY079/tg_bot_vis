@@ -1,8 +1,7 @@
 def check_advertising_text(text):
      
-    with open('C:/Users/User/Desktop/tg_bot_mus/post_tg/1/ads_text.txt','r') as f:
+    with open('C:/Users/User/Desktop/tg_bot_mus/post_tg/1/ads_text.txt','r', encoding='utf-8') as f:
         advertising_words = f.read()
-
 
         for word in advertising_words:
             if word in text.lower():
@@ -11,14 +10,6 @@ def check_advertising_text(text):
         return False  # Текст не содержит рекламный контент
 
 # Пример использования
-text = "привет"
-is_advertising = check_advertising_text(text)
-
-if is_advertising:
-    print("Текст содержит рекламный контент")
-else:
-    print("Текст не содержит рекламный контент")
-
 
 
 
