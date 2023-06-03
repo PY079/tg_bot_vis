@@ -55,7 +55,6 @@ def get_user():
         user_statuses[user.user_id] = user.user_id
     return user_statuses
     
-for i in get_user():
-    print(i)
+
 
 

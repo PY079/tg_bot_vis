@@ -32,9 +32,23 @@ def start(m: types.Message):
 Привееет, <b>{user_first_name} {last_name}</b>, делись с нами своими историями
 А другие тебя поддержат!
 Будь добрее)\n\n
+В данный момент бот написан на 100%. 
+Если <b>возникают ошибки</b>, то пишите <a href='t.me//JKPyGtH'>сюда</a>\n
 Бот создан разработчиком: <a href ='t.me//JKPyGtH'>PY079</a>
-Мой <a href ='https://github.com/PY079'>GIT HUB</a>
 ''', parse_mode='html', disable_web_page_preview=True)
+
+@bot.message_handler(commands=['menu'])
+def menu(m: types.Message):
+    if m.chat.type == 'private':
+        user_id = m.from_user.id
+        bot.send_message(m.chat.id, text='''
+<b>Меню:</b>
+1. /start - Команда, которую можно использовать для начала общения с ботом. Она инициирует диалог с ботом и позволяет выполнить определенные действия.\n
+2. /menu - Команда, которая выводит это меню. При ее выполнении бот отправит тебе список доступных команд.\n
+3. /suggest_a_post -  Команда, которую можно использовать для отправки своей истории боту с целью ее публикации. Ты можешь поделиться своими переживаниями, историями успеха или любыми другими историями, которые хотели бы поделиться с другими пользователями канала.
+''', parse_mode='html')
+
+
 
 
 @bot.message_handler(commands=["suggest_a_post"])
@@ -54,10 +68,10 @@ def suggest_a_post(message: types.Message):
             bot.send_message(message.from_user.id, "Извини, но нельзя отправлять сообщения с вложениями(")
         else:
             bot.send_message(message.from_user.id, '''
-            Отправь мне свою историю и я отправлю это в канал)\n\n---------------------------------------
+            Отправь мне свою историю и я отправлю её в канал)\n\n---------------------------------------
 <b>! WARNING !</b>\n
-1. Редактировать текст после отправки <b>НЕВОЗМОЖНО</b>, поэтому желательно подумать и потом прислать мне.\n
-2. <b>ЗАПРЕЩАЕТСЯ</b> отправлять текст с вложениями!
+1. Рекомендуется подумать и прислать мне текст, так как после отправки <b>он не может быть изменен</b>.\n
+2. <b>ЗАПРЕЩАЕТСЯ</b> отправлять текст с вложениями! Пожалуйста, присылай только текстовые сообщения без прикрепленных файлов или медиафайлов.
             ''', parse_mode='html')
             bot.register_next_step_handler(message, process_post)
 
@@ -82,7 +96,7 @@ def process_post(message: types.Message):
             bot.send_message(id_chat_info, f"#block_words\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
             
     else:
-        bot.send_message(message.from_user.id, 'АЙ-ай-ай, кто-то не читает привила(\n\nНезя присылать вложения!')
+        bot.send_message(message.from_user.id, 'Ай-ай-ай, кто-то не читает привила(\n\nНезя присылать вложения!')
     
         
         if message.content_type != 'text':
@@ -143,34 +157,40 @@ admin_input = {}  # Переменная для хранения ввода ад
 
 @bot.message_handler(commands=["send_all"])
 def send_all(message: types.Message):
-    user_first_name = str(message.chat.first_name) 
-    last_name = str(message.chat.last_name)
-    if last_name == 'None':
-            last_name = ''
-    if user_first_name == 'None':
-        user_first_name = 'No Name'
-    if str(message.from_user.id) == str(id_acc):
-        bot.send_message(message.chat.id, "Введите текст для рассылки:")
-        bot.register_next_step_handler(message, process_admin_input)
-    else:
-        bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды😡")
-        bot.send_message(id_chat_info, f"#ввел_send_all\n\n{user_first_name} - {last_name} -- <code>{message.from_user.id}</code>",parse_mode='html')
+    if message.chat.type == 'private':
+        user_first_name = str(message.chat.first_name) 
+        last_name = str(message.chat.last_name)
+        if last_name == 'None':
+                last_name = ''
+        if user_first_name == 'None':
+            user_first_name = 'No Name'
+        if str(message.from_user.id) == str(id_acc):
+            bot.send_message(message.chat.id, "Введите текст для рассылки:")
+            bot.register_next_step_handler(message, process_admin_input)
+        else:
+            bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды😡")
+            bot.send_message(id_chat_info, f"#ввел_send_all\n\n{user_first_name} - {last_name} -- <code>{message.from_user.id}</code>",parse_mode='html')
 
-def process_admin_input(message: types.Message):
-    user_input = message.text
-    send_newsletter(user_input)
+        def process_admin_input(message: types.Message):
+            user_input = message.text
+            send_newsletter(user_input)
 
-def send_newsletter(text_to_send):
-    # Отправка сообщений пользователям
-    for user_id in get_user():
-        try:
-            bot.send_photo(user_id, photo='AgACAgIAAxkBAAICqmR66pLDbMNcdmNL3kxY4_oOCfjVAAJAyTEbZr7ZS2blodlh4nZLAQADAgADeAADLwQ', caption=text_to_send)
-        except Exception as e:
-            update_user_active_status(user_id, False)
-            print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
-            bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>",parse_mode='html')
+        def send_newsletter(text_to_send):
+            # Отправка сообщений пользователям
+            for user_id in get_user():
+                try:
+                    bot.send_photo(user_id, photo='AgACAgIAAxkBAAICqmR66pLDbMNcdmNL3kxY4_oOCfjVAAJAyTEbZr7ZS2blodlh4nZLAQADAgADeAADLwQ', caption=text_to_send)
+                except Exception as e:
+                    update_user_active_status(user_id, False)
+                    print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
+                    bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>",parse_mode='html')
 
-    bot.send_message(id_acc, "Рассылка выполнена успешно!")
+            bot.send_message(id_acc, "Рассылка выполнена успешно!")
+
+
+
+
+
 
 
 if __name__ == '__main__':
