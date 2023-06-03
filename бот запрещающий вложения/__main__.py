@@ -1,7 +1,7 @@
 import telebot
 import os
 import logging
-from data import token_tg_b, id_channel, id_acc, id_chat_info
+from data import token_tg_b, id_channel, id_acc, id_chat_info, blyat, warning
 from telebot import types
 from database import save_story, get_stories, delete_story
 from adv_check import check_advertising_text
@@ -15,6 +15,7 @@ os.system('cls')
 
 bot = telebot.TeleBot(token_tg_b)
 # logging.basicConfig(level=logging.DEBUG)
+
 
 @bot.message_handler(commands=['start'])
 def start(m: types.Message):
@@ -190,6 +191,44 @@ def send_all(message: types.Message):
 
 
 
+bot.message_handler(commands=["send_ch"])
+def send_all(message: types.Message):
+    if message.chat.type == 'private':
+        user_first_name = str(message.chat.first_name)
+        last_name = str(message.chat.last_name)
+        if last_name == 'None':
+                last_name = ''
+        if user_first_name == 'None':
+            user_first_name = 'No Name'
+        if str(message.from_user.id) == str(id_acc):
+
+
+            bot.send_photo(id_channel,warning,'''
+Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
+Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
+[Все текста, которые не отправились, отправьте повторно]\n
+Не бойтесь, рассылки будут только важные и не будет никакой рекламы
+
+Рассылку имеет право использовать <b>только <a href ='t.me/JKPyGtH'>создатель этого бота</a></b>
+
+[ ]- данное предложение будет всегда повторяться в рассылках''', parse_mode='html')
+
+            for user_id in get_user():
+                try:
+                    bot.send_photo(user_id, photo=warning, caption='''
+Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
+Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
+[Все текста, которые не отправились, отправьте повторно]\n
+Не бойтесь, рассылки будут только важные и не будет никакой рекламы
+
+Рассылку имеет право использовать <b>только <a href ='t.me/JKPyGtH'>создатель этого бота</a></b>
+
+[ ]- данное предложение будет всегда повторяться в рассылках''', parse_mode='html')
+                except Exception as e:
+                    update_user_active_status(user_id, False)
+                    print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
+                    bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>",parse_mode='html')
+            bot.send_message(id_acc, "Рассылка выполнена успешно!")
 
 
 
