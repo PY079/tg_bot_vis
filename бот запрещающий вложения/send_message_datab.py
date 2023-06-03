@@ -22,12 +22,17 @@ class User(Base):
 
 
 
-# Функция для добавления нового IaD пользователя в БД
+# Функция для добавления нового ID пользователя в БД
 def add_user(user_id):
-    user = User(user_id=user_id)
-    session.add(user)
-    session.commit()
+    if not check_user_existence(user_id):
+        user = User(user_id=user_id)
+        session.add(user)
+        session.commit()
 
+# Функция для проверки существования пользователя в БД
+def check_user_existence(user_id):
+    user = session.query(User).filter(User.user_id == user_id).first()
+    return user is not None
 
 
 
@@ -41,5 +46,16 @@ def update_user_active_status(user_id, active):
     except SQLAlchemyError as e:
         print(f"Ошибка при обновлении статуса активности пользователя {user_id}: {str(e)}")
         session.rollback()
+
+
+def get_user():
+    user_statuses = {}
+    users = session.query(User).all()
+    for user in users:
+        user_statuses[user.user_id] = user.user_id
+    return user_statuses
+    
+for i in get_user():
+    print(i)
 
 

@@ -1,25 +1,14 @@
 import telebot
 import os
 import logging
-from data import token_tg_b, id_chat, id_acc
+from data import token_tg_b, id_channel, id_acc, id_chat_info
 from telebot import types
 from database import save_story, get_stories, delete_story
 from adv_check import check_advertising_text
-from send_message_datab import add_user, update_user_active_status
+from send_message_datab import add_user, update_user_active_status, get_user
 
 
-# Функция для рассылки новостей с обработкой ошибок
-def send_newsletter(users):
-    for user in users:
-        try:
-            # Код для отправки новостей пользователю
-            # ...
-            # Если рассылка успешна, не выполняется блок except и пользователь остается активным
-            pass
-        except Exception as e:
-            # В случае ошибки обновляем статус активности пользователя на False
-            update_user_active_status(user.id, False)
-            print(f"Ошибка при отправке новостей пользователю {user.id}: {str(e)}")
+
 
 
 os.system('cls')
@@ -28,9 +17,10 @@ bot = telebot.TeleBot(token_tg_b)
 # logging.basicConfig(level=logging.DEBUG)
 
 @bot.message_handler(commands=['start'])
-def start(m):
+def start(m: types.Message):
     if m.chat.type == 'private':
         user_id = m.from_user.id
+        add_user(user_id)
         user_first_name = str(m.chat.first_name)
         last_name = str(m.chat.last_name)
         if last_name == 'None':
@@ -41,7 +31,9 @@ def start(m):
         bot.send_message(m.chat.id, text=f'''
 Привееет, <b>{user_first_name} {last_name}</b>, делись с нами своими историями
 А другие тебя поддержат!
-Будь добрее)
+Будь добрее)\n\n
+Бот создан разработчиком: <a href ='t.me//JKPyGtH'>PY079</a>
+Мой <a href ='https://github.com/PY079'>GIT HUB</a>
 ''', parse_mode='html', disable_web_page_preview=True)
 
 
@@ -75,44 +67,112 @@ def process_post(message: types.Message):
     story_text = message.text
 
 
-    if check_advertising_text(story_text) is False:
-        if story_text is not None:
+    if story_text is not None:
+        if check_advertising_text(story_text) is False:
+
             if not "/" in story_text:
             
                 save_story(user_id, story_text)  # Сохраняем историю в базе данных
+                publish_stories()
             else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
                 bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
+                bot.send_message(id_chat_info, f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
         else: 
-            bot.send_message(message.from_user.id, 'Незя присылать вложения!')
+            bot.send_video(message.from_user.id, video='BAACAgIAAxkBAAICNWR6SK5IK8te9q4qFTVa5DWC5flTAALqMgACZr7ZS98yLje7RuTwLwQ', caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
+            bot.send_message(id_chat_info, f"#block_words\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
+            
     else:
-        bot.send_video(message.from_user.id, video='BAACAgIAAxkBAAICNWR6SK5IK8te9q4qFTVa5DWC5flTAALqMgACZr7ZS98yLje7RuTwLwQ', caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
+        bot.send_message(message.from_user.id, 'АЙ-ай-ай, кто-то не читает привила(\n\nНезя присылать вложения!')
+    
+        
+        if message.content_type != 'text':
+            if message.content_type == 'photo':
+                if message.caption is not None:
+                    if len(message.caption)>=1024: 
+                        message.caption=message.caption[:-100]
+                    else: message.caption=message.caption
+                    bot.send_photo(id_chat_info, message.photo[0].file_id, caption=f"#sent_an_attachment\n{message.caption}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                else: bot.send_photo(id_chat_info, message.photo[0].file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+
+            elif message.content_type == 'video':
+                if message.caption is not None:
+                    if len(message.caption)>=1024: 
+                        message.caption=message.caption[:-100]
+                    else: message.caption=message.caption
+                    bot.send_video(id_chat_info, message.video.file_id, caption=f"#sent_an_attachment\n{message.caption}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                else: bot.send_video(id_chat_info, message.video.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+            
+            elif message.content_type == 'audio':
+                if message.caption is not None:
+                    if len(message.caption)>=1024: 
+                        message.caption=message.caption[:-100]
+                    else: message.caption=message.caption
+                    bot.send_video(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n{message.caption}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                else: bot.send_video(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+            
+            elif message.content_type == 'poll':
+
+                bot.send_message(id_chat_info, f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                bot.send_poll(id_chat_info, question=message.poll.question, options=message.poll.options)
+            
+            elif message.content_type == 'location':
+                bot.send_message(id_chat_info, f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                bot.send_location(id_chat_info, latitude=message.location.latitude, longitude=message.location.longitude)
+            
+            else:
+                bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n\<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
         
 
 def publish_stories():
     stories = get_stories()  # Получаем все истории из базы данных
 
-    for story in stories:
-        if not story.sent:
-            bot.send_message(id_chat, story.story_text)
-            bot.send_message(story.user_id, "Твоя история отправлена на публикацию)")
 
+    for story in stories:
+        print(story.sent)
+        if not story.sent:
+            bot.send_message(id_channel, story.story_text)
+            bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
             story.sent = True
             delete_story(story.user_id, story.story_text)  # Удалить историю по её ID, а не по user_id и story_text
 
             break  # Прервать цикл после удаления истории
 
 
-#  Команда sendall, доступная только администратору
-@bot.message_handler(commands=["sendall"])
+
+admin_input = {}  # Переменная для хранения ввода администратора
+
+@bot.message_handler(commands=["send_all"])
 def send_all(message: types.Message):
-    if message.from_user.id == id_acc:  # Замените ADMIN_ID на фактический ID администратора
-        users = session.query(User).all()
-        send_newsletter(users)
-        bot.send_message(message.chat.id, "Рассылка выполнена успешно!")
+    user_first_name = str(message.chat.first_name) 
+    last_name = str(message.chat.last_name)
+    if last_name == 'None':
+            last_name = ''
+    if user_first_name == 'None':
+        user_first_name = 'No Name'
+    if str(message.from_user.id) == str(id_acc):
+        bot.send_message(message.chat.id, "Введите текст для рассылки:")
+        bot.register_next_step_handler(message, process_admin_input)
     else:
-        bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды.")
+        bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды😡")
+        bot.send_message(id_chat_info, f"#ввел_send_all\n\n{user_first_name} - {last_name} -- <code>{message.from_user.id}</code>",parse_mode='html')
+
+def process_admin_input(message: types.Message):
+    user_input = message.text
+    send_newsletter(user_input)
+
+def send_newsletter(text_to_send):
+    # Отправка сообщений пользователям
+    for user_id in get_user():
+        try:
+            bot.send_photo(user_id, photo='AgACAgIAAxkBAAICqmR66pLDbMNcdmNL3kxY4_oOCfjVAAJAyTEbZr7ZS2blodlh4nZLAQADAgADeAADLwQ', caption=text_to_send)
+        except Exception as e:
+            update_user_active_status(user_id, False)
+            print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
+            bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>",parse_mode='html')
+
+    bot.send_message(id_acc, "Рассылка выполнена успешно!")
 
 
 if __name__ == '__main__':
-    publish_stories()  # Выполняем функцию publish_stories в одном потоке
+    # publish_stories()  # Выполняем функцию publish_stories в одном потоке
     bot.polling(none_stop=True)
