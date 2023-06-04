@@ -28,6 +28,8 @@ def add_user(user_id):
         user = User(user_id=user_id)
         session.add(user)
         session.commit()
+        return user_id
+    else: return False
 
 # Функция для проверки существования пользователя в БД
 def check_user_existence(user_id):
