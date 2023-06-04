@@ -88,7 +88,8 @@ def process_post(message: types.Message):
 
 
     if story_text is not None:
-        if check_advertising_text(story_text) is False:
+        wor = check_advertising_text(story_text)
+        if wor is None:
 
             if not "/" in story_text:
 
@@ -99,8 +100,10 @@ def process_post(message: types.Message):
                 bot.send_message(id_chat_info, f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
         else:
             bot.send_video(message.from_user.id, video=blyat, caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
-            bot.send_message(id_chat_info, f"#block_words\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
-
+            if len(story_text)>=4070:
+                bot.send_message(id_chat_info, f"#block_words\n{wor}\n{story_text[:-150]}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
+            else:
+                bot.send_message(id_chat_info, f"#block_words\n{wor}\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
     else:
         bot.send_message(message.from_user.id, 'Ай-ай-ай, кто-то не читает привила(\n\nНезя присылать вложения!')
 
@@ -151,7 +154,10 @@ def publish_stories():
         print(story.sent)
         if not story.sent:
             bot.send_message(id_channel, story.story_text)
+            
             bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
+            
+
             story.sent = True
             delete_story(story.user_id, story.story_text)  # Удалить историю по её ID, а не по user_id и story_text
 

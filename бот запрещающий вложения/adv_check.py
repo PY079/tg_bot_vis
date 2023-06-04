@@ -5,9 +5,9 @@ def check_advertising_text(text):
 
         for word in advertising_words:
             if word in text.lower():
-                return True  # Текст содержит рекламный контент
+                return word  # Текст содержит рекламный контент
 
-        return False  # Текст не содержит рекламный контент
+        return None  # Текст не содержит рекламный контент
 
 # Пример использования
 
