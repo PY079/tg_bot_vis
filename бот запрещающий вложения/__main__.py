@@ -11,7 +11,7 @@ from send_message_datab import add_user, update_user_active_status, get_user
 
 
 
-os.system('clear')
+os.system('cls')
 
 
 bot = telebot.TeleBot(token_tg_b)
@@ -24,13 +24,16 @@ def start(m: types.Message):
         add_user(user_id)
         user_first_name = str(m.chat.first_name)
         last_name = str(m.chat.last_name)
-        if last_name == 'None':
+        # Проверка имени пользователя на наличие только букв и цифр
+
+        if last_name == 'None' or not last_name.isalnum():
             last_name = ''
-        if user_first_name == 'None':
-            user_first_name = 'Инкогнито'
+        if user_first_name == 'None' or not user_first_name.isalnum():
+            user_first_name = 'No Name'
+
 
         bot.send_message(m.chat.id, text=f'''
-Привееет, <b>друг</b>, делись с нами своими историями
+Привееет, <b>{user_first_name} {last_name}</b>, делись с нами своими историями
 А другие тебя поддержат!
 Будь добрее)\n\n
 В данный момент бот написан на 100%.
@@ -58,9 +61,11 @@ def suggest_a_post(message: types.Message):
     user_id = message.from_user.id
     user_first_name = str(message.chat.first_name)
     last_name = str(message.chat.last_name)
-    if last_name == 'None':
-            last_name = ''
-    if user_first_name == 'None':
+    # Проверка имени пользователя на наличие только букв и цифр
+
+    if last_name == 'None' or not last_name.isalnum():
+        last_name = ''
+    if user_first_name == 'None' or not user_first_name.isalnum():
         user_first_name = 'No Name'
 
     if message.chat.type == 'private':
@@ -161,10 +166,13 @@ def send_all(message: types.Message):
     if message.chat.type == 'private':
         user_first_name = str(message.chat.first_name)
         last_name = str(message.chat.last_name)
-        if last_name == 'None':
-                last_name = ''
-        if user_first_name == 'None':
+        # Проверка имени пользователя на наличие только букв и цифр
+
+        if last_name == 'None' or not last_name.isalnum():
+            last_name = ''
+        if user_first_name == 'None' or not user_first_name.isalnum():
             user_first_name = 'No Name'
+
         def process_admin_input(message: types.Message):
             user_input = message.text
             send_newsletter(user_input)
