@@ -97,7 +97,12 @@ def process_post(message: types.Message):
         if wor is None:
 
             if not "/" in story_text:
-                if '<' in story_text or '>' in story_text: story_text= story_text.replace('<','[').replace('>',']')
+                if '<' in story_text and '>' in story_text: 
+                    
+                    if len(story_text)>=4070:
+                        bot.send_message(id_chat_info, f"#simv_<_or_>\n{last_name} {user_first_name}\n<code>{user_id}</code>\n\n{story_text[:-100]}")
+                        story_text= story_text.replace('<','[').replace('>',']')
+
                 save_story(user_id, story_text)  # Сохраняем историю в базе данных
                 publish_stories()
             else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
