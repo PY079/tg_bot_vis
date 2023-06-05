@@ -25,9 +25,9 @@ def start(m: types.Message):
         last_name = str(m.chat.last_name)
         # Проверка имени пользователя на наличие только букв и цифр
 
-        if last_name == 'None' or not last_name.isalnum():
+        if last_name == 'None':
             last_name = ''
-        if user_first_name == 'None' or not user_first_name.isalnum():
+        if user_first_name == 'None':
             user_first_name = 'No Name'
 
         if add_user(user_id) is not False:
@@ -67,9 +67,9 @@ def suggest_a_post(message: types.Message):
     last_name = str(message.chat.last_name)
     # Проверка имени пользователя на наличие только букв и цифр
 
-    if last_name == 'None' or not last_name.isalnum():
+    if last_name == 'None':
         last_name = ''
-    if user_first_name == 'None' or not user_first_name.isalnum():
+    if user_first_name == 'None':
         user_first_name = 'No Name'
 
     if message.chat.type == 'private':
@@ -97,7 +97,7 @@ def process_post(message: types.Message):
         if wor is None:
 
             if not "/" in story_text:
-
+                if '<' in story_text or '>' in story_text: story_text= story_text.replace('<','[').replace('>',']')
                 save_story(user_id, story_text)  # Сохраняем историю в базе данных
                 publish_stories()
             else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
@@ -179,9 +179,9 @@ def send_all(message: types.Message):
         last_name = str(message.chat.last_name)
         # Проверка имени пользователя на наличие только букв и цифр
 
-        if last_name == 'None' or not last_name.isalnum():
+        if last_name == 'None':
             last_name = ''
-        if user_first_name == 'None' or not user_first_name.isalnum():
+        if user_first_name == 'None':
             user_first_name = 'No Name'
 
         def process_admin_input(message: types.Message):
