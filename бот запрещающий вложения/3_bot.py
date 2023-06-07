@@ -1,7 +1,7 @@
 import telebot
 import os
 import logging
-from data import token_tg_b, id_channel, id_acc, id_chat_info, blyat, warning
+from data import t_token_tg_b, t_id_channel, id_acc, id_chat_info, t_blyat, t_warning
 from telebot import types
 from database import save_story, get_stories, delete_story
 from adv_check import check_advertising_text
@@ -12,7 +12,7 @@ from send_message_datab import add_user, update_user_active_status, get_user
 os.system('cls')
 
 
-bot = telebot.TeleBot(token_tg_b)
+bot = telebot.TeleBot(t_token_tg_b)
 # logging.basicConfig(level=logging.DEBUG)
 
 @bot.message_handler(commands=['start'])
@@ -112,7 +112,7 @@ def process_post(message: types.Message):
                         bot.send_message(id_chat_info, f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
                
         else:
-            bot.send_video(message.from_user.id, video=blyat, caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
+            bot.send_video(message.from_user.id, video=t_blyat, caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
             if len(story_text)>=4070:
                 bot.send_message(id_chat_info, f"#block_words\n{wor}\n\n{story_text[:-150].replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
             else:
@@ -166,7 +166,7 @@ def publish_stories():
     for story in stories:
         print(story.sent)
         if not story.sent:
-            bot.send_message(id_channel, story.story_text)
+            bot.send_message(t_id_channel, story.story_text)
             
             bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
             
@@ -208,7 +208,7 @@ def send_all(message: types.Message):
             # Отправка сообщений пользователям
             for user_id in get_user():
                 try:
-                    bot.send_photo(user_id, photo=warning, caption=text_to_send)
+                    bot.send_photo(user_id, photo=t_warning, caption=text_to_send)
                     update_user_active_status(user_id, True)
                     bot.send_message(id_chat_info,f"#successful_mailing\n\nУдачная отправка новостей пользователю {user_id}")
                 except Exception as e:
@@ -228,7 +228,7 @@ def send_ch(message: types.Message):
         if str(message.from_user.id) == str(id_acc):
 
 
-            bot.send_photo(id_channel,warning,'''
+            bot.send_photo(t_id_channel,t_warning,'''
 Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
 Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
 [Все текста, которые не отправились, отправьте повторно]\n
@@ -240,7 +240,7 @@ def send_ch(message: types.Message):
 
             for user_id in get_user():
                 try:
-                    bot.send_photo(user_id, photo=warning, caption='''
+                    bot.send_photo(user_id, photo=t_warning, caption='''
 Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
 Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
 [Все текста, которые не отправились, отправьте повторно]\n
