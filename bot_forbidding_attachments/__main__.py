@@ -10,7 +10,7 @@ from send_message_datab import add_user, update_user_active_status, get_user
 
 
 os.system('cls')
-
+print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(token_tg_b)
 # logging.basicConfig(level=logging.DEBUG)
