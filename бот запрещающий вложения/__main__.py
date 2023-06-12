@@ -19,8 +19,8 @@ bot = telebot.TeleBot(token_tg_b)
 def start(m: types.Message):
     if m.chat.type == 'private':
         user_id = m.from_user.id
-        user_first_name = str(m.chat.first_name)
-        last_name = str(m.chat.last_name)
+        user_first_name = str(m.from_user.first_name)
+        last_name = str(m.from_user.last_name)
         # Проверка имени пользователя на наличие только букв и цифр
 
         if last_name == 'None':
@@ -65,8 +65,8 @@ def menu(m: types.Message):
 def suggest_a_post(message: types.Message):
     global user_first_name, last_name
     user_id = message.from_user.id
-    user_first_name = str(message.chat.first_name)
-    last_name = str(message.chat.last_name)
+    user_first_name = str(message.from_user.first_name)
+    last_name = str(message.from_user.last_name)
     # Проверка имени пользователя на наличие только букв и цифр
 
     if last_name == 'None':
@@ -94,6 +94,15 @@ def suggest_a_post(message: types.Message):
 def process_post(message: types.Message):
     user_id = message.from_user.id
     story_text = message.text
+
+    user_first_name = str(message.from_user.first_name)
+    last_name = str(message.from_user.last_name)
+    # Проверка имени пользователя на наличие только букв и цифр
+
+    if last_name == 'None':
+        last_name = ''
+    if user_first_name == 'None':
+        user_first_name = 'No Name'
     
 
 
