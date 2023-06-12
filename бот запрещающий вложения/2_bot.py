@@ -1,7 +1,7 @@
 from data import token_tg_b, id_channel, id_chat_info
 from send_message_datab import add_user
 import telebot, os
-print()
+print('')
 os.system('cls')
 
 bot = telebot.TeleBot(token_tg_b)
