@@ -137,7 +137,7 @@ def process_post(message: types.Message):
                 bot.send_message(id_channel, f"ХУИЛО НЕ СЛЕДУЕТ ПРАВИЛАМ!\n{wor}\n\nИмя: {user_first_name} {last_name} -- id: <code>{user_id}</code>",parse_mode='html')
                 bot.ban_chat_member(id_channel, user_id)
     else:
-        bot.send_message(message.from_user.id, 'Ай-ай-ай, кто-то не читает привила(\n\nНезя присылать вложения!')
+        bot.send_message(message.from_user.id, 'Ай-ай-ай, кто-то не читает правила(\n\nНезя присылать вложения!')
 
 
         if message.content_type != 'text':
