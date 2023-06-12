@@ -1,6 +1,6 @@
 def check_advertising_text(text):
      
-    with open('C:/Users/User/Desktop/tg_bot_mus/post_tg/1/бот запрещающий вложения/ads_text.txt','r', encoding='utf-8') as f:
+    with open(r'C:\Users\User\Desktop\tg_bot_mus\post_tg\1\bot_forbidding_attachments\ads_text.txt','r', encoding='utf-8') as f:
         advertising_words = f.read().splitlines()
 
         for word in advertising_words:

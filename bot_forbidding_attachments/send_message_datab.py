@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 
 # Создание подключения к базе данных SQLite
-engine = create_engine('sqlite:///C:/Users/User/Desktop/tg_bot_mus/post_tg/1/бот запрещающий вложения/users.db')
+engine = create_engine(r'sqlite:///C:\Users\User\Desktop\tg_bot_mus\post_tg\1\bot_forbidding_attachments\users.db')
 Base = declarative_base()
 Base.metadata.bind = engine
 Session = sessionmaker(bind=engine)
