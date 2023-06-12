@@ -1,6 +1,7 @@
-import telebot
+import telebot, time
 import os
 import logging
+# from data import token_tg_b, id_channel, id_acc, id_chat_info, blyat, warning
 from data import t_token_tg_b, t_id_channel, id_acc, id_chat_info, t_blyat, t_warning
 from telebot import types
 from database import save_story, get_stories, delete_story
@@ -19,8 +20,8 @@ bot = telebot.TeleBot(t_token_tg_b)
 def start(m: types.Message):
     if m.chat.type == 'private':
         user_id = m.from_user.id
-        user_first_name = str(m.chat.first_name)
-        last_name = str(m.chat.last_name)
+        user_first_name = str(m.from_user.first_name)
+        last_name = str(m.from_user.last_name)
         # Проверка имени пользователя на наличие только букв и цифр
 
         if last_name == 'None':
@@ -33,6 +34,8 @@ def start(m: types.Message):
 
 
         bot.send_message(m.chat.id, text=f'''
+‼️ Прекращает работать этот бот 11.06.2023 в 23:00 и больше пока не запустится ‼️
+
 Привееет, <b>{user_first_name} {last_name}</b>, делись с нами своими историями
 А другие тебя поддержат!
 Будь добрее)\n\n
@@ -52,6 +55,8 @@ def menu(m: types.Message):
 2. /menu - Команда, которая выводит это меню. При ее выполнении бот отправит тебе список доступных команд.\n
 3. /suggest_a_post -  Команда, которую можно использовать для отправки своей истории боту с целью ее публикации. Ты можешь поделиться своими переживаниями, историями успеха или любыми другими историями, которые хотели бы поделиться с другими пользователями канала.\n
 Работает с 09:00 до 23:00 по МСК (проблемы с хостингом)
+
+‼️ Прекращает работать этот бот 11.06.2023 в 23:00 и больше пока не запустится ‼️
 ''', parse_mode='html')
 
 
@@ -61,8 +66,8 @@ def menu(m: types.Message):
 def suggest_a_post(message: types.Message):
     global user_first_name, last_name
     user_id = message.from_user.id
-    user_first_name = str(message.chat.first_name)
-    last_name = str(message.chat.last_name)
+    user_first_name = str(message.from_user.first_name)
+    last_name = str(message.from_user.last_name)
     # Проверка имени пользователя на наличие только букв и цифр
 
     if last_name == 'None':
@@ -79,8 +84,10 @@ def suggest_a_post(message: types.Message):
             Отправь мне свою историю и я отправлю её в канал)\n\n---------------------------------------
 <b>! WARNING !</b>\n
 Работает с 09:00 до 23:00 по МСК (проблемы с хостингом)\n
+‼️ Прекращает работать этот бот 11.06.2023 в 23:00 и больше пока не запустится ‼️\n
 1. Рекомендуется подумать и прислать мне текст, так как после отправки <b>он не может быть изменен</b>.\n
 2. <b>ЗАПРЕЩАЕТСЯ</b> отправлять текст с вложениями! Пожалуйста, присылай только текстовые сообщения без прикрепленных файлов или медиафайлов.
+
             ''', parse_mode='html')
             bot.register_next_step_handler(message, process_post)
 
@@ -88,6 +95,16 @@ def suggest_a_post(message: types.Message):
 def process_post(message: types.Message):
     user_id = message.from_user.id
     story_text = message.text
+
+    user_first_name = str(message.from_user.first_name)
+    last_name = str(message.from_user.last_name)
+    # Проверка имени пользователя на наличие только букв и цифр
+
+    if last_name == 'None':
+        last_name = ''
+    if user_first_name == 'None':
+        user_first_name = 'No Name'
+    
 
 
     if story_text is not None:
@@ -99,7 +116,7 @@ def process_post(message: types.Message):
                         
                 print(story_text)
                 save_story(user_id, story_text)  # Сохраняем историю в базе данных
-                publish_stories()
+                publish_stories(user_first_name, last_name)
             
             else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
                 bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
@@ -115,8 +132,11 @@ def process_post(message: types.Message):
             bot.send_video(message.from_user.id, video=t_blyat, caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
             if len(story_text)>=4070:
                 bot.send_message(id_chat_info, f"#block_words\n{wor}\n\n{story_text[:-150].replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
+                bot.send_message(t_id_channel, f"ХУИЛО НЕ СЛЕДУЕТ ПРАВИЛАМ!\n{wor}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
             else:
                 bot.send_message(id_chat_info, f"#block_words\n{wor}\n\n{story_text.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
+                bot.send_message(t_id_channel, f"ХУИЛО НЕ СЛЕДУЕТ ПРАВИЛАМ!\n{wor}\n\nИмя: {user_first_name} {last_name} -- id: <code>{user_id}</code>",parse_mode='html')
+                bot.ban_chat_member(t_id_channel, user_id)
     else:
         bot.send_message(message.from_user.id, 'Ай-ай-ай, кто-то не читает привила(\n\nНезя присылать вложения!')
 
@@ -159,7 +179,7 @@ def process_post(message: types.Message):
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n\<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
 
-def publish_stories():
+def publish_stories(fi, la):
     stories = get_stories()  # Получаем все истории из базы данных
 
 
@@ -169,8 +189,10 @@ def publish_stories():
             bot.send_message(t_id_channel, story.story_text)
             
             bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
+            if len(story.story_text)>=4070:
+                bot.send_message(id_chat_info, f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text[:-150]}')
+            else: bot.send_message(id_chat_info, f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}')
             
-
             story.sent = True
             delete_story(story.user_id, story.story_text)  # Удалить историю по её ID, а не по user_id и story_text
 
@@ -209,6 +231,7 @@ def send_all(message: types.Message):
             for user_id in get_user():
                 try:
                     bot.send_photo(user_id, photo=t_warning, caption=text_to_send)
+                    time.sleep(2)
                     update_user_active_status(user_id, True)
                     bot.send_message(id_chat_info,f"#successful_mailing\n\nУдачная отправка новостей пользователю {user_id}")
                 except Exception as e:
