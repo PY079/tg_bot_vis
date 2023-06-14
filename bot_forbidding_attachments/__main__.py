@@ -3,6 +3,7 @@ import os
 import logging
 from data import token_tg_b, id_channel, id_acc, id_chat_info, blyat, warning
 from telebot import types
+from blacklist import check_user_existence, ban_user, unban_user
 from database import save_story, get_stories, delete_story
 from adv_check import check_advertising_text
 from send_message_datab import add_user, update_user_active_status, get_user
@@ -15,7 +16,7 @@ print('\n\nБОТ ЗАПУЩЕН\n\n')
 bot = telebot.TeleBot(token_tg_b)
 # logging.basicConfig(level=logging.DEBUG)
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
         user_id = m.from_user.id
@@ -44,7 +45,7 @@ def start(m: types.Message):
 Бот создан разработчиком: <a href ='t.me//JKPyGtH'>PY079</a>
 ''', parse_mode='html', disable_web_page_preview=True)
 
-@bot.message_handler(commands=['menu'])
+@bot.message_handler(commands=['menu'], func=lambda message: not check_user_existence(message.from_user.id))
 def menu(m: types.Message):
     if m.chat.type == 'private':
         user_id = m.from_user.id
@@ -61,7 +62,7 @@ def menu(m: types.Message):
 
 
 
-@bot.message_handler(commands=["suggest_a_post"])
+@bot.message_handler(commands=["suggest_a_post"], func=lambda message: not check_user_existence(message.from_user.id))
 def suggest_a_post(message: types.Message):
     global user_first_name, last_name
     user_id = message.from_user.id
@@ -239,6 +240,35 @@ def send_all(message: types.Message):
                     bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>\n\n<code>{str(e)}</code>",parse_mode='html')
 
             bot.send_message(id_acc, "Рассылка выполнена успешно!")
+
+@bot.message_handler(commands=["ban"])
+def b_u(message: types.Message):
+    if str(message.from_user.id) == str(id_acc):
+        bot.send_message(id_acc, 'Отправь мне id пользователя, что забанить')
+        bot.register_next_step_handler(message, b_u2)
+
+def b_u2(message: types.Message):
+    if check_user_existence(message.text) == False:
+        ban_user(message.text)
+        bot.send_message(id_acc, 'Пользователь заблокирован')
+        bot.ban_chat_member(id_channel,message.text)
+    else:
+        bot.send_message(id_acc, 'Пользователь уже заблокирован')
+
+@bot.message_handler(commands=["un_ban"])
+def ub_u(message: types.Message):
+    if str(message.from_user.id) == str(id_acc):
+        bot.send_message(id_acc, 'Отправь мне id пользователя, что заблокировать')
+        bot.register_next_step_handler(message, ub_u2)
+
+def ub_u2(message: types.Message):
+    if check_user_existence(message.text):
+        unban_user(message.text)
+        bot.unban_chat_member(id_channel,message.text)
+        bot.send_message(id_acc, 'Пользователь разблокирован')
+    else:
+        bot.send_message(id_acc, 'Пользователь уже разблокирован')
+
 
 
 @bot.message_handler(commands=["send_ch"])
