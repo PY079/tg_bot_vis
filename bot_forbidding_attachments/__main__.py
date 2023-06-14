@@ -244,7 +244,7 @@ def send_all(message: types.Message):
 @bot.message_handler(commands=["ban"])
 def b_u(message: types.Message):
     if str(message.from_user.id) == str(id_acc):
-        bot.send_message(id_acc, 'Отправь мне id пользователя, что забанить')
+        bot.send_message(id_acc, 'Отправь мне id пользователя, чтобы заблокировать')
         bot.register_next_step_handler(message, b_u2)
 
 def b_u2(message: types.Message):
@@ -258,7 +258,7 @@ def b_u2(message: types.Message):
 @bot.message_handler(commands=["un_ban"])
 def ub_u(message: types.Message):
     if str(message.from_user.id) == str(id_acc):
-        bot.send_message(id_acc, 'Отправь мне id пользователя, что заблокировать')
+        bot.send_message(id_acc, 'Отправь мне id пользователя, чтобы разблокировать')
         bot.register_next_step_handler(message, ub_u2)
 
 def ub_u2(message: types.Message):
