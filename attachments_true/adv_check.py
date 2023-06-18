@@ -1,13 +1,13 @@
 def check_advertising_text(text):
      
-    with open('C:/Users/User/Desktop/tg_bot_mus/post_tg/1/ads_text.txt','r', encoding='utf-8') as f:
-        advertising_words = f.read()
+    with open(r'C:\Users\User\Desktop\tg_bot_mus\post_tg\1\bot_forbidding_attachments\ads_text.txt','r', encoding='utf-8') as f:
+        advertising_words = f.read().splitlines()
 
         for word in advertising_words:
             if word in text.lower():
-                return True  # Текст содержит рекламный контент
+                return word  # Текст содержит рекламный контент
 
-        return False  # Текст не содержит рекламный контент
+        return None  # Текст не содержит рекламный контент
 
 # Пример использования
 

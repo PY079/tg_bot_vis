@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('sqlite:///C:/Users/User/Desktop/tg_bot_mus/post_tg/1/stories.db')
+engine = create_engine('sqlite:///C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/stories.db')
 Base = declarative_base()
 
 class Story(Base):
