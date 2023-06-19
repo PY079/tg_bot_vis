@@ -1,6 +1,4 @@
-import telebot, time
-import os
-import logging
+import telebot, time, os
 from data import token_tg_b, id_channel, id_acc, id_chat_info, blyat, warning
 from telebot import types
 from blacklist import check_user_existence, ban_user, unban_user
