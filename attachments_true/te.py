@@ -1,4 +1,4 @@
-import telebot, time, os, logging
+import telebot, time, os#, logging
 from telebot import types
 from data import t_token_tg_b, t_id_att, t_id_channel, id_chat_info, t_blyat, id_acc, t_warning
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
@@ -12,7 +12,7 @@ print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(t_token_tg_b)
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
@@ -50,7 +50,11 @@ def menu(m: types.Message):
 <b>Меню:</b>
 1. /start - Команда, которую можно использовать для начала общения с ботом. Она инициирует диалог с ботом и позволяет выполнить определенные действия.\n
 2. /menu - Команда, которая выводит это меню. При ее выполнении бот отправит тебе список доступных команд.\n
-3. /suggest_a_post -  Команда, которую можно использовать для отправки своей истории боту с целью ее публикации. Ты можешь поделиться своими переживаниями, историями успеха или любыми другими историями, которые хотели бы поделиться с другими пользователями канала.\n
+3. /suggest_a_post -  Команда, которую можно использовать для отправки своей истории боту с целью ее публикации. Ты можешь поделиться своими переживаниями, историями успеха или любыми другими историями, которые хотели бы поделиться с другими пользователями канала.
+4. /attach_a_message позволяет отправить историю или сообщение с вложением. В первый раз отправь одно вложение с текстом (или без). После этого можно добавить еще вложения без текста до максимума в 10 штук.
+Обрати внимание, что текст, который ты если напишешь в каждое вложение, то он будет прикреплен ко всем вложениям, а не как подпись к сообщению.
+Когда закончишь добавлять вложения, нажми кнопку "Отправить".\n
+
 Работает с 09:00 до 23:00 по МСК (проблемы с хостингом)
 
 ‼️ БОТ РАБОТАЕТ КОГДА КАК, ТК ПРОГРАММИСТ ЗАПУСКАЕТ БОТА КОГДА МОЖЕТ‼️
@@ -105,7 +109,7 @@ def process_post(message: types.Message):
 
     
     if story_text is not None:
-        if len(story_text)>=15:
+        if len(story_text)>=4:
             
             wor = check_advertising_text(story_text)
             if wor is None:
@@ -200,13 +204,14 @@ def publish_stories(fi, la):
 
 
 cou = {}  # Словарь для хранения списков file_id пользователей
-
+log_t={}
 @bot.message_handler(commands=['attach_a_message'], func=lambda message: not check_user_existence(message.from_user.id))
 def handle_media_group(message: types.Message):
     user_id = message.from_user.id
 
     if user_id not in cou:
         cou[user_id] = []
+        log_t[user_id] = []
 
     if len(cou[user_id]) == 0:
         bot.send_message(user_id, '''В первый раз отправь мне одно вложение с текстом (или без). Остальные разы, если хочешь вложить больше, просто отправь вложение без текста (max 10).\n
@@ -220,6 +225,7 @@ def handle_media_group(message: types.Message):
     
 
 def at_p(message: types.Message):
+    log_text=[]
     user_id = message.from_user.id
     attach_text = message.caption
     user_first_name = str(bot.get_chat(user_id).first_name)
@@ -232,6 +238,12 @@ def at_p(message: types.Message):
         user_first_name = 'No Name'
     
     if attach_text == None: attach_text=''
+    else: 
+        if len(attach_text)>len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'):
+            symbols=len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}')
+            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text[::-symbols]}'
+        else:
+            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
 
     if len(attach_text)>2 or len(attach_text)==0:
     
@@ -242,24 +254,32 @@ def at_p(message: types.Message):
                 if message.content_type == 'video':
                     file_id = message.video.file_id
                     media = types.InputMediaVideo(file_id, caption=attach_text)
+                    media1 = types.InputMediaVideo(file_id, caption=log_text)
                     cou[user_id].append(media)
+                    log_t[user_id].append(media1)
                     save_media_entry(user_id, file_id, attach_text)
 
                 elif message.content_type == 'photo':
                     file_id = message.photo[0].file_id
                     media = types.InputMediaPhoto(file_id, caption=attach_text)
+                    media1 = types.InputMediaPhoto(file_id, caption=log_text)
                     cou[user_id].append(media)
+                    log_t[user_id].append(media1)
                     save_media_entry(user_id, file_id, attach_text)
 
                 elif message.content_type =='audio':
                     file_id=message.audio.file_id
                     media = types.InputMediaAudio(file_id, caption=attach_text)
-                    cou[user_id].append(media)
+                    media1 = types.InputMediaAudio(file_id, caption=log_text)
+                    cou[user_id].append(media1)
+                    log_t[user_id].append(media)
                 
                 elif message.content_type == 'document':
                     file_id=message.document.file_id
                     media = types.InputMediaDocument(file_id, caption=attach_text)
+                    media1 = types.InputMediaDocument(file_id, caption=log_text)
                     cou[user_id].append(media)
+                    log_t[user_id].append(media1)
 
                 else:
                     bot.send_message(message.from_user.id,'Пока такое незя отправлять')
@@ -269,6 +289,11 @@ def at_p(message: types.Message):
                     elif message.content_type == 'location':
                         bot.send_message(id_chat_info, f"#sent_an_location\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
                         bot.send_location(id_chat_info, latitude=message.location.latitude, longitude=message.location.longitude)
+                    elif message.content_type =='text':
+                        bot.send_message(id_chat_info, f"#sent_an_text\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                        bot.send_message(id_chat_info,message.text)
+                        bot.send_message(message.from_user.id, 'В этой функции нельзя писать текст без вложений\n\nИспользуй тогда /suggest_a_post')
+
                     else:
                         bot.send_message(id_chat_info, f"#sent_an_none\n Неизвестный тип вложения\n\<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
@@ -295,8 +320,11 @@ def send_media_callback(call):
 
     if user_id in cou and len(cou[user_id]) > 0:
         try:
+            print(cou[user_id])
             bot.send_media_group(t_id_att, media=cou[user_id])
+            bot.send_media_group(id_chat_info, media=log_t[user_id])
             cou[user_id].clear()
+            log_t[user_id].clear()
         
             # Получаем список file_id для удаления
             file_ids = [media.file_id for media in cou[user_id]]

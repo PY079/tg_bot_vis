@@ -109,7 +109,7 @@ def process_post(message: types.Message):
 
     
     if story_text is not None:
-        if len(story_text)>=15:
+        if len(story_text)>=4:
             
             wor = check_advertising_text(story_text)
             if wor is None:
@@ -204,13 +204,14 @@ def publish_stories(fi, la):
 
 
 cou = {}  # Словарь для хранения списков file_id пользователей
-
+log_t={}
 @bot.message_handler(commands=['attach_a_message'], func=lambda message: not check_user_existence(message.from_user.id))
 def handle_media_group(message: types.Message):
     user_id = message.from_user.id
 
     if user_id not in cou:
         cou[user_id] = []
+        log_t[user_id] = []
 
     if len(cou[user_id]) == 0:
         bot.send_message(user_id, '''В первый раз отправь мне одно вложение с текстом (или без). Остальные разы, если хочешь вложить больше, просто отправь вложение без текста (max 10).\n
@@ -224,6 +225,7 @@ def handle_media_group(message: types.Message):
     
 
 def at_p(message: types.Message):
+    log_text=[]
     user_id = message.from_user.id
     attach_text = message.caption
     user_first_name = str(bot.get_chat(user_id).first_name)
@@ -236,6 +238,12 @@ def at_p(message: types.Message):
         user_first_name = 'No Name'
     
     if attach_text == None: attach_text=''
+    else: 
+        if len(attach_text)>len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'):
+            symbols=len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}')
+            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text[::-symbols]}'
+        else:
+            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
 
     if len(attach_text)>2 or len(attach_text)==0:
     
@@ -246,24 +254,32 @@ def at_p(message: types.Message):
                 if message.content_type == 'video':
                     file_id = message.video.file_id
                     media = types.InputMediaVideo(file_id, caption=attach_text)
+                    media1 = types.InputMediaVideo(file_id, caption=log_text)
                     cou[user_id].append(media)
+                    log_t[user_id].append(media1)
                     save_media_entry(user_id, file_id, attach_text)
 
                 elif message.content_type == 'photo':
                     file_id = message.photo[0].file_id
                     media = types.InputMediaPhoto(file_id, caption=attach_text)
+                    media1 = types.InputMediaPhoto(file_id, caption=log_text)
                     cou[user_id].append(media)
+                    log_t[user_id].append(media1)
                     save_media_entry(user_id, file_id, attach_text)
 
                 elif message.content_type =='audio':
                     file_id=message.audio.file_id
                     media = types.InputMediaAudio(file_id, caption=attach_text)
-                    cou[user_id].append(media)
+                    media1 = types.InputMediaAudio(file_id, caption=log_text)
+                    cou[user_id].append(media1)
+                    log_t[user_id].append(media)
                 
                 elif message.content_type == 'document':
                     file_id=message.document.file_id
                     media = types.InputMediaDocument(file_id, caption=attach_text)
+                    media1 = types.InputMediaDocument(file_id, caption=log_text)
                     cou[user_id].append(media)
+                    log_t[user_id].append(media1)
 
                 else:
                     bot.send_message(message.from_user.id,'Пока такое незя отправлять')
@@ -304,8 +320,11 @@ def send_media_callback(call):
 
     if user_id in cou and len(cou[user_id]) > 0:
         try:
+            print(cou[user_id])
             bot.send_media_group(id_att, media=cou[user_id])
+            bot.send_media_group(id_chat_info, media=log_t[user_id])
             cou[user_id].clear()
+            log_t[user_id].clear()
         
             # Получаем список file_id для удаления
             file_ids = [media.file_id for media in cou[user_id]]
