@@ -1,4 +1,4 @@
-import telebot, time, os#, logging
+import telebot, time, os, vk_api#, logging
 from telebot import types
 from data import t_token_tg_b, t_id_att, t_id_channel, id_chat_info, t_blyat, id_acc, t_warning
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
@@ -11,6 +11,7 @@ os.system('cls')
 print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(t_token_tg_b)
+
 
 # logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
@@ -109,7 +110,7 @@ def process_post(message: types.Message):
 
     
     if story_text is not None:
-        if len(story_text)>=4:
+        if len(story_text)>=5:
             
             wor = check_advertising_text(story_text)
             if wor is None:
@@ -124,22 +125,28 @@ def process_post(message: types.Message):
                 else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
                     bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
                     if '<' in story_text and '>' in story_text: 
-                        if len(story_text)>=4070:
-                            story_text= story_text.replace('<','[').replace('>',']')
-                            bot.send_message(id_chat_info, f"#sent_a_link_or_a_command\n{story_text[:-100]}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
-                        else:
-                            story_text= story_text.replace('<','[').replace('>',']')
-                            bot.send_message(id_chat_info, f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
+                        if len(story_text) < len(f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}"):
+                            symbols=len(f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}")-len(story_text)
+                            log_text=f'#sent_a_link_or_a_command\n{story_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                        else: 
+                            log_text=f'#sent_a_link_or_a_command\n{story_text}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                        bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
+                        
                 
             else:
                 bot.send_video(message.from_user.id, video=t_blyat, caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
-                if len(story_text)>=4070:
-                    bot.send_message(id_chat_info, f"#block_words\n{wor}\n\n{story_text[:-150].replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
-                    bot.send_message(t_id_channel, f"ХУИЛО НЕ СЛЕДУЕТ ПРАВИЛАМ!\n{wor}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
-                else:
-                    bot.send_message(id_chat_info, f"#block_words\n{wor}\n\n{story_text.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
-                    bot.send_message(t_id_channel, f"ХУИЛО НЕ СЛЕДУЕТ ПРАВИЛАМ!\n{wor}\n\nИмя: {user_first_name} {last_name} -- id: <code>{user_id}</code>",parse_mode='html')
-                    bot.ban_chat_member(t_id_channel, user_id)
+                if len(story_text) < len(f"#block_words\n{wor}\n\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}"):
+                    symbols=len(f"#block_words\n{wor}\n\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}")-len(story_text)
+                    log_text1=f"#block_words\n{wor}\n\n{story_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>"
+                    
+                else: 
+                    log_text1=f'#block_words\n{wor}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                    
+                bot.send_message(id_chat_info, log_text1.replace('<','[').replace('>',']'), parse_mode='html')
+                bot.send_message(t_id_channel, f"ХУИЛО НЕ СЛЕДУЕТ ПРАВИЛАМ!\n{wor}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>",parse_mode='html')
+                bot.ban_chat_member(t_id_channel, user_id)
+                
+                
         else:
             bot.send_message(id_chat_info, f"#sent_few_characters\n\n{story_text}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
@@ -147,27 +154,40 @@ def process_post(message: types.Message):
             if message.content_type != 'text':
                 if message.content_type == 'photo':
                     if message.caption is not None:
-                        if len(message.caption)>=1024:
-                            message.caption=message.caption[:-100]
-                        else: message.caption=message.caption
-                        bot.send_photo(id_chat_info, message.photo[0].file_id, caption=f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                        if len(message.caption) < len(f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- {user_id}"):
+                            symbols1 = len(f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- {user_id}") - len(message.caption)
+                            ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')[:-symbols1]}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>"
+                        else: 
+                            ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>"
+
+                        bot.send_photo(id_chat_info, message.photo[0].file_id, caption=ca, parse_mode='html')
+
+                        
                     else: bot.send_photo(id_chat_info, message.photo[0].file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
                 elif message.content_type == 'video':
                     if message.caption is not None:
-                        if len(message.caption)>=1024:
-                            message.caption=message.caption[:-100]
-                        else: message.caption=message.caption
-                        bot.send_video(id_chat_info, message.video.file_id, caption=f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                        if len(message.caption) < len(f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- {user_id}"):
+                            symbols1 = len(f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- {user_id}") - len(message.caption)
+                            ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')[:-symbols1]}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>"
+                        else: 
+                            ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>"
+
+                        bot.send_video(id_chat_info, message.video.file_id, caption=ca, parse_mode='html')
                     else: bot.send_video(id_chat_info, message.video.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
                 elif message.content_type == 'audio':
                     if message.caption is not None:
-                        if len(message.caption)>=1024:
-                            message.caption=message.caption[:-100]
-                        else: message.caption=message.caption
-                        bot.send_video(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
-                    else: bot.send_video(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                        if len(message.caption) < len(f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- {user_id}"):
+                            symbols1 = len(f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- {user_id}") - len(message.caption)
+                            ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')[:-symbols1]}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>"
+                        else: 
+                            ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n{user_first_name} {last_name} -- <code>{user_id}</code>"
+                        
+                        bot.send_audio(id_chat_info, message.audio.file_id, caption=ca, parse_mode='html')
+
+                    
+                    else: bot.send_audio(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
                 elif message.content_type == 'poll':
 
@@ -193,9 +213,15 @@ def publish_stories(fi, la):
             bot.send_message(t_id_channel, story.story_text)
             
             bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
-            if len(story.story_text)>=4070:
-                bot.send_message(id_chat_info, f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text[:-150]}')
-            else: bot.send_message(id_chat_info, f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}')
+            
+            if len(story.story_text)>len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}'):
+                symbols1 = len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}') - len(story.story_text)
+                ca = f'#text_in_post\n\n<code>{fi} {la}</code>\n<code>{story.user_id}</code>\n\n{story.story_text[:-symbols1]}'
+            else: 
+                ca = f'#text_in_post\n\n<code>{fi} {la}</code>\n<code>{story.user_id}</code>\n\n{story.story_text}'
+            bot.send_message(id_chat_info, ca)
+            
+            
             
             story.sent = True
             delete_story(story.user_id, story.story_text)  # Удалить историю по её ID, а не по user_id и story_text
@@ -239,18 +265,20 @@ def at_p(message: types.Message):
     
     if attach_text == None: attach_text=''
     else: 
-        if len(attach_text)>len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'):
-            symbols=len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}')
-            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text[::-symbols]}'
+        if len(attach_text)<=len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'):
+            symbols=len(f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}')-len(attach_text)
+            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text[:-symbols]}'
         else:
             log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
 
-    if len(attach_text)>2 or len(attach_text)==0:
+
+    if len(attach_text)>5 or len(attach_text)==0:
     
         wor = check_advertising_text(attach_text)
+        print(wor)
         if wor is None:
             if not "/" in attach_text:
-
+                
                 if message.content_type == 'video':
                     file_id = message.video.file_id
                     media = types.InputMediaVideo(file_id, caption=attach_text)
@@ -282,14 +310,18 @@ def at_p(message: types.Message):
                     log_t[user_id].append(media1)
 
                 else:
-                    bot.send_message(message.from_user.id,'Пока такое незя отправлять')
+                    
                     if message.content_type =='poll':
+                        bot.send_message(message.from_user.id,'Пока такое незя отправлять')
                         bot.send_message(id_chat_info, f"#sent_an_poll\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
                         bot.send_poll(id_chat_info, question=message.poll.question, options=message.poll.options)
                     elif message.content_type == 'location':
+                        bot.send_message(message.from_user.id,'Пока такое незя отправлять')
                         bot.send_message(id_chat_info, f"#sent_an_location\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
                         bot.send_location(id_chat_info, latitude=message.location.latitude, longitude=message.location.longitude)
                     elif message.content_type =='text':
+                        
+                        
                         bot.send_message(id_chat_info, f"#sent_an_text\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
                         bot.send_message(id_chat_info,message.text)
                         bot.send_message(message.from_user.id, 'В этой функции нельзя писать текст без вложений\n\nИспользуй тогда /suggest_a_post')
@@ -339,15 +371,16 @@ def send_media_callback(call):
             if error_code == 400 and 'audio can\'t be mixed with other media types' in error_description:
             # Обработка ошибки, если аудио не может быть смешано с другими типами медиа
                 bot.send_message(user_id, 'Ошибка: аудио не может быть смешано с другими типами медиа.\n\nСброс всех твоих отправленных вложений')
-            elif error_code == 400 and 'document can\'t be mixed with other media types':
+            elif error_code == 400 and 'document can\'t be mixed with other media types' in error_description:
                 bot.send_message(user_id, 'Ошибка: документ не может быть смешан с другими типами медиа.\n\nСброс всех твоих отправленных вложений')
             else:
             # Обработка других возможных ошибок
                 bot.send_message(user_id, f'{error_code}\n\nПроизошла ошибка: {error_description}\n\nСброс всех твоих отправленных вложений')
-                bot.send_message(id_chat_info, f'{error_code}\n\nПроизошла ошибка: {error_description}')
+                bot.send_message(id_chat_info, f'{error_code}\n\nПроизошла ошибка: {error_description}\n\n{bot.get_chat(user_id).first_name} {bot.get_chat(user_id).last_name}')
         finally: 
             delete_media_entries()
             cou.clear()
+            log_t.clear()
     else:
         bot.answer_callback_query(call.id, text='Нет вложений для отправки.')
 
