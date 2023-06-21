@@ -1,4 +1,4 @@
-import telebot, time, os, vk_api#, logging
+import telebot, time, os, chardet#, logging
 from telebot import types
 from data import t_token_tg_b, t_id_att, t_id_channel, id_chat_info, t_blyat, id_acc, t_warning
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
@@ -13,6 +13,10 @@ print('\n\nБОТ ЗАПУЩЕН\n\n')
 bot = telebot.TeleBot(t_token_tg_b)
 
 
+def check_encoding(text, expected_encoding):
+    encoded_text = text.encode()
+    detected_encoding = chardet.detect(encoded_text)['encoding']
+    return detected_encoding == expected_encoding
 # logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
@@ -216,10 +220,10 @@ def publish_stories(fi, la):
             
             if len(story.story_text)>len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}'):
                 symbols1 = len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}') - len(story.story_text)
-                ca = f'#text_in_post\n\n<code>{fi} {la}</code>\n<code>{story.user_id}</code>\n\n{story.story_text[:-symbols1]}'
+                ca = f'#text_in_post\n\n<code>{fi} {la}</code> <code>{story.user_id}</code>\n\n{story.story_text[:-symbols1]}'
             else: 
-                ca = f'#text_in_post\n\n<code>{fi} {la}</code>\n<code>{story.user_id}</code>\n\n{story.story_text}'
-            bot.send_message(id_chat_info, ca)
+                ca = f'#text_in_post\n\n<code>{fi} {la}</code> <code>{story.user_id}</code>\n\n{story.story_text}'
+            bot.send_message(id_chat_info, ca,parse_mode='html')
             
             
             
@@ -275,9 +279,8 @@ def at_p(message: types.Message):
     if len(attach_text)>5 or len(attach_text)==0:
     
         wor = check_advertising_text(attach_text)
-        print(wor)
         if wor is None:
-            if not "/" in attach_text:
+            if not ('/' or 'start' or 'menu' or 'suggest_a_post' or 'attach_a_message' or '//') in attach_text:
                 
                 if message.content_type == 'video':
                     file_id = message.video.file_id
@@ -345,7 +348,24 @@ def at_p(message: types.Message):
                     bot.send_message(message.from_user.id,'Больше 10 вложений нельзя!')
                 if len(cou[user_id])==9:
                     bot.send_message(message.from_user.id,'Осталось одно вложение!')
+            else:
+                bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
+                if len(attach_text) != 0 and '<' in message.text and '>' in attach_text: 
+                    if len(attach_text) < len(f"#sent_a_link_or_a_command_at\n{attach_text}\n\n{user_first_name} {last_name} -- {user_id}"):
+                        symbols=len(f"#sent_a_link_or_a_command_at\n{attach_text}\n\n{user_first_name} {last_name} -- {user_id}")-len(attach_text)
+                        log_text=f'#sent_a_link_or_a_command_at\n{attach_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                    else: 
+                        log_text=f'#sent_a_link_or_a_command_at\n{attach_text}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                    bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
 
+        else:
+            if len(attach_text)<=len(f'#block_word_at\n\n{user_id} {last_name} {user_first_name}\n\n{attach_text}'):
+                symbol=len(f'#block_word_at\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}')-len(attach_text)
+                lor=f'#block_word_at\n\n{user_id}\n{last_name} {user_first_name}\n{wor}\n\n{attach_text[:-symbol]}'
+            else:
+                lor=f'#block_word_at\n\n{user_id}\n{last_name} {user_first_name}\n{wor}\n\n{attach_text}'
+
+            bot.send_message(id_chat_info,lor)
 @bot.callback_query_handler(func=lambda call: call.data == 'send_media')
 def send_media_callback(call):
     user_id = call.from_user.id
