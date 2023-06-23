@@ -1,4 +1,4 @@
-import telebot, time, os, chardet#, logging
+import telebot, time, os, chardet, logging
 from telebot import types
 from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, warning
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
@@ -18,7 +18,7 @@ def check_encoding(text, expected_encoding):
     return detected_encoding == expected_encoding
 
     
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
@@ -124,7 +124,7 @@ def process_post(message: types.Message):
                         
                             
                     print(story_text)
-                    save_story(user_id, story_text)  # Сохраняем историю в базе данных
+                    save_story(user_id, story_text.replace('<','[').replace('>',']'))  # Сохраняем историю в базе данных
                     publish_stories(user_first_name, last_name)
                 
                 else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
@@ -135,11 +135,11 @@ def process_post(message: types.Message):
                             log_text=f'#sent_a_link_or_a_command\n{story_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
                         else: 
                             log_text=f'#sent_a_link_or_a_command\n{story_text}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
-                        bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
+                    bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
                         
                 
             else:
-                bot.send_video(message.from_user.id, video=blyat, caption=f'Ну вот ты и попался, {user_first_name + last_name}\n\nНезя так')
+                bot.send_video(message.from_user.id, video=blyat, caption=f'Ну вот ты и попался, {user_first_name} {last_name}\n\nНезя так')
                 if len(story_text) < len(f"#block_words\n{wor}\n\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}"):
                     symbols=len(f"#block_words\n{wor}\n\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}")-len(story_text)
                     log_text1=f"#block_words\n{wor}\n\n{story_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>"

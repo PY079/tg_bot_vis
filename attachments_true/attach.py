@@ -5,7 +5,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 engine = create_engine('sqlite:///C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/media.db')
 Session = sessionmaker(bind=engine)
-session = Session()
 
 class User(Base):
     __tablename__ = 'users'
@@ -37,18 +36,20 @@ def create_tables():
     Base.metadata.create_all(engine)
 
 def check_user(user_id, message):
-    user = session.query(User).filter_by(telegram_id=user_id).first()
-    if not user:
-        # Если пользователя нет, создаем новую запись
-        user = User(telegram_id=user_id, first_name=message.from_user.first_name, last_name=message.from_user.last_name)
-        session.add(user)
-        session.commit()
+    with Session() as session:
+        user = session.query(User).filter_by(telegram_id=user_id).first()
+        if not user:
+            # Если пользователя нет, создаем новую запись
+            user = User(telegram_id=user_id, first_name=message.from_user.first_name, last_name=message.from_user.last_name)
+            session.add(user)
 
 def save_media_entry(user_id, file_id, caption):
-    media_entry = Media(user_id=user_id, file_id=file_id, caption=caption)
-    session.add(media_entry)
-    session.commit()
+    with Session() as session:
+        media_entry = Media(user_id=user_id, file_id=file_id, caption=caption)
+        session.add(media_entry)
+        session.commit()
 
 def delete_media_entries():
-    session.query(Media).delete()
-    session.commit()
+    with Session() as session:
+        session.query(Media).delete()
+        session.commit()
