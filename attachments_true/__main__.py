@@ -233,7 +233,7 @@ def publish_stories(fi, la):
 
             break  # Прервать цикл после удаления истории
 
-
+can_add_media = {}
 cou = {}  # Словарь для хранения списков file_id пользователей
 log_t={}
 @bot.message_handler(commands=['attach_a_message'], func=lambda message: not check_user_existence(message.from_user.id))
@@ -243,6 +243,7 @@ def handle_media_group(message: types.Message):
     if user_id not in cou:
         cou[user_id] = []
         log_t[user_id] = []
+        can_add_media[user_id] = True
 
     if len(cou[user_id]) == 0:
         bot.send_message(user_id, '''В первый раз отправь мне одно вложение с текстом (или без). Остальные разы, если хочешь вложить больше, просто отправь вложение без текста (max 10).\n
@@ -401,6 +402,7 @@ def send_media_callback(call):
                 bot.send_message(user_id, f'{error_code}\n\nПроизошла ошибка: {error_description}\n\nСброс всех твоих отправленных вложений')
                 bot.send_message(id_chat_info, f'{error_code}\n\nПроизошла ошибка: {error_description}\n\n{bot.get_chat(user_id).first_name} {bot.get_chat(user_id).last_name}')
         finally: 
+            can_add_media[user_id] = True
             delete_media_entries()
             cou.clear()
             log_t.clear()
@@ -414,6 +416,7 @@ def add_media_callback(call):
 
     if user_id not in cou:
         cou[user_id] = []
+        can_add_media[user_id] = False
 
     bot.send_message(user_id, 'Отправь мне вложение')
     bot.register_next_step_handler(call.message, at_p)

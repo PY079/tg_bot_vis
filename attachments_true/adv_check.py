@@ -1,8 +1,8 @@
 import os
 def check_advertising_text(text):
     pk = r'C:\Users\User\Desktop\tg_bot_mus\post_tg\1\bot_forbidding_attachments\ads_text.txt'
-    # home_dir = os.path.expanduser('~')
-    # da = os.path.join(home_dir,'bots/tg_bot_vis/attachments_true/ads_text.txt')
+    # s = '/root/bots/tg_bot_vis/attachments_true/ads_text.txt'
+    
     with open(pk,'r', encoding='utf-8') as f:
         advertising_words = f.read().splitlines()
 

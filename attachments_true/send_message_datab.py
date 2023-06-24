@@ -7,6 +7,7 @@ import os
 # home_dir = os.path.expanduser('~')
 # da = os.path.join(home_dir, 'bots/tg_bot_vis/attachments_true/users.db')
 pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/users.db'
+# s = '/root/bots/bot_tg_vis/attachments_true/users.db'
 # Создание подключения к базе данных SQLite
 engine = create_engine(f'sqlite:///{pk}')
 Base = declarative_base()

@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import os
 
 pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/media.db'
+# s = '/root/bots/tg_bot_vis/attachments_true/media.db'
 # home_dir = os.path.expanduser('~')
 # da = os.path.join(home_dir,'bots/tg_bot_vis/attachments_true/media.db')
 
