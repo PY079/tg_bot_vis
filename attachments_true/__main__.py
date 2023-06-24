@@ -17,7 +17,6 @@ def check_encoding(text, expected_encoding):
     detected_encoding = chardet.detect(encoded_text)['encoding']
     return detected_encoding == expected_encoding
 
-    
 logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
