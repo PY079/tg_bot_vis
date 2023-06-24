@@ -1,8 +1,13 @@
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import os
 
-engine = create_engine('sqlite:///C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/blacklist.db')
+# home_dir= os.path.expanduser('~')
+# da = os.path.join(home_dir,'bots/tg_bot_vis/attacments_true/blacklist.db')
+pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/blacklist.db'
+
+engine = create_engine(f'sqlite:///{pk}')
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 

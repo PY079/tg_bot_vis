@@ -1,8 +1,13 @@
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
 
-engine = create_engine('sqlite:///C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/stories.db')
+# home_dir = os.path.expanduser('~')
+# da= os.path.join(home_dir, 'bots/tg_bot_vis/attacments_true/stories.db')
+pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/stories.db'
+
+engine = create_engine(f'sqlite:///{pk}')
 Base = declarative_base()
 
 class Story(Base):

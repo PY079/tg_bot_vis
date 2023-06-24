@@ -7,7 +7,7 @@ from database import save_story, get_stories, delete_story
 from adv_check import check_advertising_text
 from send_message_datab import add_user, update_user_active_status, get_user
 
-os.system('cls')
+os.system('clear')
 print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(token_tg_b)
@@ -331,7 +331,7 @@ def at_p(message: types.Message):
                         bot.send_message(message.from_user.id, 'В этой функции нельзя писать текст без вложений\n\nИспользуй тогда /suggest_a_post')
 
                     else:
-                        bot.send_message(id_chat_info, f"#sent_an_none\n Неизвестный тип вложения\n\<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                        bot.send_message(id_chat_info, f"#sent_an_none\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
 
                 if len(cou[user_id]) > 0 and len(cou[user_id])<=10:
