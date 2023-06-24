@@ -204,7 +204,7 @@ def process_post(message: types.Message):
                     bot.send_location(id_chat_info, latitude=message.location.latitude, longitude=message.location.longitude)
 
                 else:
-                    bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n\<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                    bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
     else:
         bot.send_message(message.from_user.id, 'Ай-ай-ай, кто-то не читает правила(\n\nНезя присылать вложения!')
 
