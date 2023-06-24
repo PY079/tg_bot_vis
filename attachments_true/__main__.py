@@ -1,4 +1,4 @@
-import telebot, time, os, chardet, logging
+import telebot, time, os, chardet, logging, sys
 from telebot import types
 from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, warning
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
@@ -18,7 +18,19 @@ def check_encoding(text, expected_encoding):
     return detected_encoding == expected_encoding
 
     
-logging.basicConfig(level=logging.DEBUG)
+
+
+handlers = []
+for logger in logging.root.manager.loggerDict.values():
+    if isinstance(logger, logging.Logger):
+        for handler in logger.handlers:
+            if hasattr(handler, 'level') and 'POST' in str(handler.level):
+                handlers.append(logging.StreamHandler(sys.stdout))
+            else:
+                handlers.append(logging.NullHandler())
+
+logging.basicConfig(level=logging.DEBUG, handlers=handlers)
+
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
