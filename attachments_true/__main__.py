@@ -129,13 +129,14 @@ def process_post(message: types.Message):
                 
                 else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
                     bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
-                    if '<' in story_text and '>' in story_text: 
-                        if len(story_text) < len(f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}"):
-                            symbols=len(f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}")-len(story_text)
-                            log_text=f'#sent_a_link_or_a_command\n{story_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
-                        else: 
-                            log_text=f'#sent_a_link_or_a_command\n{story_text}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
-                    bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
+                    
+                    if len(story_text) < len(f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}"):
+                        symbols=len(f"#sent_a_link_or_a_command\n{story_text}\n\n{user_first_name} {last_name} -- {user_id}")-len(story_text)
+                        log_text=f'#sent_a_link_or_a_command\n{story_text[:-symbols]}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                        bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
+                    else: 
+                        log_text=f'#sent_a_link_or_a_command\n{story_text}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>'
+                        bot.send_message(id_chat_info, log_text.replace('<','[').replace('>',']'), parse_mode='html')
                         
                 
             else:
