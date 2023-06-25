@@ -5,10 +5,10 @@ import os
 
 # home_dir= os.path.expanduser('~')
 # da = os.path.join(home_dir,'bots/tg_bot_vis/attacments_true/blacklist.db')
-# pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/blacklist.db'
-s = '/root/bots/tg_bot_vis/attachments_true/blacklist.db'
+pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/pc/blacklist.db'
+# s = '/root/bots/tg_bot_vis/attachments_true/blacklist.db'
 
-engine = create_engine(f'sqlite:///{s}')
+engine = create_engine(f'sqlite:///{pk}')
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 

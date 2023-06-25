@@ -5,7 +5,7 @@ import os
 
 
 # pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/stories.db'
-s = '/root/bots/tg_bot_vis/attachments_true/stories.db'
+s = '/root/bots/tg_bot_vis/attachments_true/ihor/stories.db'
 engine = create_engine(f'sqlite:///{s}')
 Base = declarative_base()
 

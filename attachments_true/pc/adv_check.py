@@ -1,9 +1,9 @@
 import os
 def check_advertising_text(text):
-    # pk = r'C:\Users\User\Desktop\tg_bot_mus\post_tg\1\bot_forbidding_attachments\ads_text.txt'
-    s = '/root/bots/tg_bot_vis/attachments_true/ads_text.txt'
+    pk = 'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/pc/ads_text.txt'
+    # s = '/root/bots/tg_bot_vis/attachments_true/ihor/ads_text.txt'
     
-    with open(s,'r', encoding='utf-8') as f:
+    with open(pk,'r', encoding='utf-8') as f:
         advertising_words = f.read().splitlines()
 
         for word in advertising_words:
