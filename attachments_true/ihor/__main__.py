@@ -112,7 +112,7 @@ def process_post(message: types.Message):
         if len(story_text)>=5:   
             wor = check_advertising_text(story_text)
             if wor is None:
-                if not ('//' or '/start' or '/menu' or '/suggest_a_post' or '/attach_a_message') in story_text:
+                if not ('//' in story_text or '/start'in story_text or '/menu'in story_text or '/suggest_a_post'in story_text or '/attach_a_message'in story_text):
                                         
                     print(story_text)
                     save_story(user_id, story_text.replace('<','[').replace('>',']'))  # Сохраняем историю в базе данных
