@@ -39,7 +39,7 @@ def start(m: types.Message):
 
 
         bot.send_message(m.chat.id, text=f'''
-‼️ БОТ РАБОТАЕТ КОГДА КАК, ТК ПРОГРАММИСТ ЗАПУСКАЕТ БОТА КОГДА МОЖЕТ‼️
+
 
 Привееет, <b>{user_first_name} {last_name}</b>, делись с нами своими историями
 А другие тебя поддержат!
@@ -120,7 +120,7 @@ def process_post(message: types.Message):
             wor = check_advertising_text(story_text)
             if wor is None:
 
-                if not "/" in story_text:
+                if not ('//' or 'start' or 'menu' or 'suggest_a_post' or 'attach_a_message') in story_text:
                         
                             
                     print(story_text)
