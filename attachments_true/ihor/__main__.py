@@ -300,7 +300,7 @@ def at_p(message: types.Message):
                         file_id=message.audio.file_id
                         media = types.InputMediaAudio(file_id, caption=attach_text)
                         media1 = types.InputMediaAudio(file_id, caption=log_text)
-                        cou[user_id].append(media1)
+                        cou[user_id].append(media)
                         log_t[user_id].append(media1)
                         save_media_entry(user_id, file_id, attach_text)
                     
@@ -404,7 +404,7 @@ def send_media_callback(call):
                 bot.send_message(user_id, f'{error_code}\n\nПроизошла ошибка: {error_description}\n\nСброс всех твоих отправленных вложений')
                 bot.send_message(id_chat_info, f'{error_code}\n\nПроизошла ошибка: {error_description}\n\n{bot.get_chat(user_id).first_name} {bot.get_chat(user_id).last_name}')
         finally: 
-            print('finaly',can_add_media)
+            # print('finaly',can_add_media)
             can_add_media[user_id] = False
             delete_media_entries()
             cou.clear()
@@ -417,7 +417,7 @@ def send_media_callback(call):
 def add_media_callback(call):
     user_id = call.from_user.id
 
-    print(can_add_media)
+    # print(can_add_media)
 
     if user_id not in cou:
         print('add_media',can_add_media)
