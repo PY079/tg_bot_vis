@@ -271,7 +271,7 @@ def at_p(message: types.Message):
         log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
         if len(log_text) > 1024:
             diff = len(log_text) - 1024
-            log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text[:-diff]}'
+            log_text=f'#attach\n\n<code>{user_id}</code>\n<code>{user_first_name} {last_name}</code>\n\n{attach_text[:-diff]}'
 
     if len(attach_text)>5 or len(attach_text)==0:
     
