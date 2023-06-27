@@ -267,11 +267,11 @@ def at_p(message: types.Message):
     
     if attach_text == None: attach_text=''
     else: 
-        ca=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
-        log_text=f'#attach\n\n<code>{user_id}</code>\n<code>{last_name} {user_first_name}</code>\n\n{attach_text}'
+        ca=f"#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}"
+        log_text=f"#attach\n\n<code>{user_id}</code>\n<code>{last_name} {user_first_name}</code>\n\n{attach_text.replace('<','[').replace('>',']')}"
         if len(ca) > 1024:
             diff = len(ca) - 1024
-            log_text=f'#attach\n\n<code>{user_id}</code>\n<code>{user_first_name} {last_name}</code>\n\n{attach_text[:-diff]}'
+            log_text=f"#attach\n\n<code>{user_id}</code>\n<code>{user_first_name} {last_name}</code>\n\n{attach_text[:-diff].replace('<','[').replace('>',']')}"
 
     if len(attach_text)>5 or len(attach_text)==0:
     
@@ -283,7 +283,7 @@ def at_p(message: types.Message):
                     if message.content_type == 'video':
                         file_id = message.video.file_id
                         media = types.InputMediaVideo(file_id, caption=attach_text)
-                        media1 = types.InputMediaVideo(file_id, caption=log_text)
+                        media1 = types.InputMediaVideo(file_id, caption=log_text, parse_mode='html')
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
                         save_media_entry(user_id, file_id, attach_text)
@@ -291,7 +291,7 @@ def at_p(message: types.Message):
                     elif message.content_type == 'photo':
                         file_id = message.photo[0].file_id
                         media = types.InputMediaPhoto(file_id, caption=attach_text)
-                        media1 = types.InputMediaPhoto(file_id, caption=log_text)
+                        media1 = types.InputMediaPhoto(file_id, caption=log_text, parse_mode='html')
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
                         save_media_entry(user_id, file_id, attach_text)
@@ -299,7 +299,7 @@ def at_p(message: types.Message):
                     elif message.content_type =='audio':
                         file_id=message.audio.file_id
                         media = types.InputMediaAudio(file_id, caption=attach_text)
-                        media1 = types.InputMediaAudio(file_id, caption=log_text)
+                        media1 = types.InputMediaAudio(file_id, caption=log_text, parse_mode='html')
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
                         save_media_entry(user_id, file_id, attach_text)
@@ -307,7 +307,7 @@ def at_p(message: types.Message):
                     elif message.content_type == 'document':
                         file_id=message.document.file_id
                         media = types.InputMediaDocument(file_id, caption=attach_text)
-                        media1 = types.InputMediaDocument(file_id, caption=log_text)
+                        media1 = types.InputMediaDocument(file_id, caption=log_text, parse_mode='html')
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
                         save_media_entry(user_id, file_id, attach_text)
@@ -417,7 +417,7 @@ def send_media_callback(call):
 def add_media_callback(call):
     user_id = call.from_user.id
 
-    # print(can_add_media)
+    print(can_add_media)
 
     if user_id not in cou:
         print('add_media',can_add_media)
