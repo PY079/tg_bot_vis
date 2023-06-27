@@ -238,10 +238,10 @@ def handle_media_group(message: types.Message):
         if user_id not in can_add_media:
             can_add_media[user_id]=True
         
-        print('start',can_add_media)
+        
         if can_add_media[user_id] ==False:
             can_add_media[user_id] = True
-        print('upd start',can_add_media)
+
         if len(cou[user_id]) == 0:
             bot.send_message(user_id, '''В первый раз отправь мне одно вложение с текстом (или без). Остальные разы, если хочешь вложить больше, просто отправь вложение без текста (max 10).\n
 Иначе текст, который ты написал, будет прикрепляться к каждому вложению, а не как подпись. ''')
@@ -267,10 +267,10 @@ def at_p(message: types.Message):
     
     if attach_text == None: attach_text=''
     else: 
-        
-        log_text=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
-        if len(log_text) > 1024:
-            diff = len(log_text) - 1024
+        ca=f'#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}'
+        log_text=f'#attach\n\n<code>{user_id}</code>\n<code>{last_name} {user_first_name}</code>\n\n{attach_text}'
+        if len(ca) > 1024:
+            diff = len(ca) - 1024
             log_text=f'#attach\n\n<code>{user_id}</code>\n<code>{user_first_name} {last_name}</code>\n\n{attach_text[:-diff]}'
 
     if len(attach_text)>5 or len(attach_text)==0:
@@ -301,7 +301,8 @@ def at_p(message: types.Message):
                         media = types.InputMediaAudio(file_id, caption=attach_text)
                         media1 = types.InputMediaAudio(file_id, caption=log_text)
                         cou[user_id].append(media1)
-                        log_t[user_id].append(media)
+                        log_t[user_id].append(media1)
+                        save_media_entry(user_id, file_id, attach_text)
                     
                     elif message.content_type == 'document':
                         file_id=message.document.file_id
@@ -309,6 +310,7 @@ def at_p(message: types.Message):
                         media1 = types.InputMediaDocument(file_id, caption=log_text)
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
+                        save_media_entry(user_id, file_id, attach_text)
 
                     else:
                         
