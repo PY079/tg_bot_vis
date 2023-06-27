@@ -267,11 +267,11 @@ def at_p(message: types.Message):
     
     if attach_text == None: attach_text=''
     else: 
-        ca=f"#attach\n\n{user_id}\n{last_name} {user_first_name}\n\n{attach_text}"
-        log_text=f"#attach\n\n<code>{user_id}</code>\n<code>{last_name} {user_first_name}</code>\n\n{attach_text.replace('<','[').replace('>',']')}"
+        ca=f"#attach\n\n{user_id}\n{user_first_name} {last_name}\n\n{attach_text}"
+        log_text=f"#attach\n\n<code>{user_id}</code> <code>{user_first_name} {last_name}</code>\n\n{attach_text.replace('<','[').replace('>',']')}"
         if len(ca) > 1024:
             diff = len(ca) - 1024
-            log_text=f"#attach\n\n<code>{user_id}</code>\n<code>{user_first_name} {last_name}</code>\n\n{attach_text[:-diff].replace('<','[').replace('>',']')}"
+            log_text=f"#attach\n\n<code>{user_id}</code> <code>{user_first_name} {last_name}</code>\n\n{attach_text[:-diff].replace('<','[').replace('>',']')}"
 
     if len(attach_text)>5 or len(attach_text)==0:
     
