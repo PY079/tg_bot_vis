@@ -315,16 +315,15 @@ def at_p(message: types.Message):
     if attach_text == None:
         attach_text = ''
     else:
-        log_text = f'#attach\n\n{user_id}\n{user_first_name} {last_name}\n\n{attach_text}'
+        log_text = f'#attach\n\n{user_id} {user_first_name} {last_name}\n\n{attach_text}'
         if len(log_text) > 1024:
             diff = len(log_text) - 1024
-            log_text = f'#attach\n\n{user_id}\n{user_first_name} {last_name}\n\n{attach_text[:-diff]}'
+            log_text = f'#attach\n\n{user_id} {user_first_name} {last_name}\n\n{attach_text[:-diff]}'
 
     if len(attach_text) > 5 or len(attach_text) == 0:
         wor = check_advertising_text(attach_text)
         if wor is None:
             if user_id in can_add_media:
-                print(message)
                 if not ('//' in attach_text or '/start' in attach_text or '/menu' in attach_text or '/suggest_a_post' in attach_text or '/attach_a_message' in attach_text):
                     if message.content_type == 'video':
                         file_id = message.video.file_id
@@ -353,8 +352,8 @@ def at_p(message: types.Message):
 
                         if message.caption is None:
                             media1 = types.InputMediaAudio(file_id, caption=f"#attach\n<code>{message.from_user.id}</code> {user_first_name} {last_name}",parse_mode='html')
-                        cou[user_id].append(media1)
-                        log_t[user_id].append(media)
+                        cou[user_id].append(media)
+                        log_t[user_id].append(media1)
                     elif message.content_type == 'document':
                         file_id=message.document.file_id
                         media = types.InputMediaDocument(file_id, caption=attach_text)
