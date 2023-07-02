@@ -15,7 +15,7 @@ os.system('clear')
 
 bot = telebot.TeleBot(token_tg_b)
 
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
