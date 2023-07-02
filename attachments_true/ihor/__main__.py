@@ -277,14 +277,13 @@ can_b =[]
 def handle_media_group(message: types.Message):
     user_id = message.from_user.id
 
-    if user_id not in cou:
-        cou[user_id] = []
+    if user_id not in cou: cou[user_id] = []
         
-    if user_id not in log_t:
-        log_t[user_id] = []
+    if user_id not in log_t: log_t[user_id] = []
 
-    if user_id not in can_add_media:
-        can_add_media.append(user_id)
+    if user_id not in can_add_media: can_add_media.append(user_id)
+
+    if user_id in can_b: can_b.remove(user_id)
 
     if len(cou[user_id]) == 0:
         markup2 = types.InlineKeyboardMarkup(row_width=2)
