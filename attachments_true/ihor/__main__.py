@@ -201,7 +201,7 @@ def process_post(message: types.Message):
 
             elif message.content_type=='sticker':
                 bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
-                bot.send_message(message.from_user.id, 'Пока такое нельзя отправлять')
+                bot.send_message(message.from_user.id, 'Такое нельзя отправлять')
 
             elif message.content_type == 'poll':
 
@@ -382,7 +382,7 @@ def at_p(message: types.Message):
                         
                         elif message.content_type=='sticker':
                             bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
-                            bot.send_message(message.from_user.id, 'Пока такое нельзя отправлять')
+                            bot.send_message(message.from_user.id, 'Такое нельзя отправлять')
                         else:
                             bot.send_message(id_chat_info, f"#sent_an_none\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
