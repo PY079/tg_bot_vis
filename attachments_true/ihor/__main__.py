@@ -523,6 +523,7 @@ def add_media_callback(call):
 
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new_members(message):
+    print(message)
     if message.chat.id =='-1001602808574':
         new_members = message.new_chat_members
 
