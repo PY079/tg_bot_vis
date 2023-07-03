@@ -131,7 +131,7 @@ def process_post(message: types.Message):
                                         
                     print(story_text)
                     save_story(user_id, story_text.replace('<','[').replace('>',']'))  # Сохраняем историю в базе данных
-                    publish_stories(user_first_name, last_name,user_id)
+                    publish_stories(user_first_name, last_name)
                 
                 else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
                     bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
@@ -217,7 +217,7 @@ def process_post(message: types.Message):
 
 
 
-def publish_stories(fi, la, id):
+def publish_stories(fi, la):
     stories = get_stories()  # Получаем все истории из базы данных
 
 
@@ -226,11 +226,11 @@ def publish_stories(fi, la, id):
         if not story.sent:
             bot.send_message(id_channel, story.story_text)
             
-            bot.send_message(id, "Твоя история отправлена на публикацию")
+            bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
             
-            if id in post_cont:post_cont.remove(id)
-            if id in post_can: post_can.remove(id)
-            if id in post_tr:post_tr.remove(id)
+            if story.user_id in post_cont:post_cont.remove(story.user_id)
+            if story.user_id in post_can: post_can.remove(story.user_id)
+            if story.user_id in post_tr:post_tr.remove(story.user_id)
             
             if len(story.story_text)>len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}'):
                 symbols1 = len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}') - len(story.story_text)
