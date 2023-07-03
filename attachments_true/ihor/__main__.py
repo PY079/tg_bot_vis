@@ -199,6 +199,10 @@ def process_post(message: types.Message):
 
                 else: bot.send_audio(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
+            elif message.content_type=='sticker':
+                bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+                bot.send_message(message.from_user.id, 'Пока такое нельзя отправлять')
+
             elif message.content_type == 'poll':
 
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
@@ -211,7 +215,7 @@ def process_post(message: types.Message):
             else:
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
-        
+
 
 def publish_stories(fi, la, id):
     stories = get_stories()  # Получаем все истории из базы данных
