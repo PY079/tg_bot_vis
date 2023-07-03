@@ -526,10 +526,9 @@ def welcome_new_members(message):
     print(message)
     if str(message.chat.id) ==str('-1001602808574'):
         new_members = message.new_chat_members
-        bot.send_message('-1001602808574','Тест send')
 
         for member in new_members:
-            bot.send_sticker(id_att, sticker='CAACAgIAAxkBAAILh2Sh1zai5ujZdQxTJlcfxNMUu2qGAALSFAACqfvJSasB3gKMKGXlLwQ',reply_to_message_id=message.id)
+            bot.send_sticker('-1001602808574', sticker='CAACAgIAAxkBAAILh2Sh1zai5ujZdQxTJlcfxNMUu2qGAALSFAACqfvJSasB3gKMKGXlLwQ',reply_to_message_id=message.id)
             time.sleep(2)
         
 
