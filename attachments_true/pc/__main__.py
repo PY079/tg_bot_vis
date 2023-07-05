@@ -42,8 +42,8 @@ def start(m: types.Message):
 Для ознакомления команд введи или нажми на /menu\n
 В данный момент бот написан на 100%.
 Работает круглосуточно\n
-Если <b>возникают ошибки</b>, то пишите <a href='t.me//JKPyGtH'>сюда</a>\n
-Бот создан разработчиком: <a href ='t.me//JKPyGtH'>PY079</a>
+Если <b>возникают ошибки</b>, то пишите <a href='t.me//dev_bot_vsk'>сюда</a>\n
+Бот создан разработчиком: <a href ='t.me//dev_bot_vsk'>PY079</a>
 ''', parse_mode='html', disable_web_page_preview=True)
 
 @bot.message_handler(commands=['menu'], func=lambda message: not check_user_existence(message.from_user.id))
@@ -161,7 +161,7 @@ def process_post(message: types.Message):
         if message.content_type != 'text':
             if message.content_type == 'photo':
                 if message.caption is not None:
-
+                    print(message.photo[0].file_id)
                     log_text1 = f"#sent_an_attachment\n{message.caption}\n\n{user_first_name} {last_name} -- {user_id}"
                     ca = f"#sent_an_attachment\n{message.caption.replace('<','[').replace('>',']')}\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>"
                     if len(log_text1) > 1024:
@@ -626,41 +626,6 @@ def ub_u2(message: types.Message):
 
 
 
-@bot.message_handler(commands=["send_ch"])
-def send_ch(message: types.Message):
-    print(type(message.from_user.id))
-    print(type(id_acc))
-    if message.chat.type == 'private':
-
-        if str(message.from_user.id) == str(id_acc):
-
-
-            bot.send_photo(id_channel,warning,'''
-Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
-Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
-[Все текста, которые не отправились, отправьте повторно]\n
-Не бойтесь, рассылки будут только важные и не будет никакой рекламы
-
-Рассылку имеет право использовать <b>только <a href ='t.me/JKPyGtH'>создатель этого бота</a></b>
-
-[ ]- данное предложение будет всегда повторяться в рассылках''', parse_mode='html')
-
-            for user_id in get_user():
-                try:
-                    bot.send_photo(user_id, photo=warning, caption='''
-Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
-Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
-[Все текста, которые не отправились, отправьте повторно]\n
-Не бойтесь, рассылки будут только важные и не будет никакой рекламы
-
-Рассылку имеет право использовать <b>только <a href ='t.me/JKPyGtH'>создатель этого бота</a></b>
-
-[ ]- данное предложение будет всегда повторяться в рассылках''', parse_mode='html')
-                except Exception as e:
-                    update_user_active_status(user_id, False)
-                    print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
-                    bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>",parse_mode='html')
-            bot.send_message(id_acc, "Рассылка выполнена успешно!")
 
 
 
