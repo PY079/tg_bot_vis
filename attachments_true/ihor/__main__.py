@@ -1,6 +1,6 @@
 import telebot, time, os, chardet, logging, sys
 from telebot import types
-from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, warning
+from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, vs_ch, stic
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
 from blacklist import check_user_existence, ban_user, unban_user
 from database import save_story, get_stories, delete_story
@@ -201,8 +201,7 @@ def process_post(message: types.Message):
 
             elif message.content_type=='sticker':
                 bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
-                bot.send_message(message.from_user.id, 'Такое нельзя отправлять')
-
+               
             elif message.content_type == 'poll':
 
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
@@ -524,11 +523,11 @@ def add_media_callback(call):
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new_members(message):
     print(message)
-    if str(message.chat.id) ==str('-1001602808574'):
+    if str(message.chat.id) ==vs_ch:
         new_members = message.new_chat_members
 
         for member in new_members:
-            bot.send_sticker('-1001602808574', sticker='CAACAgIAAxkBAAILh2Sh1zai5ujZdQxTJlcfxNMUu2qGAALSFAACqfvJSasB3gKMKGXlLwQ',reply_to_message_id=message.id)
+            bot.send_sticker(vs_ch, sticker=stic,reply_to_message_id=message.id)
             time.sleep(2)
         
 

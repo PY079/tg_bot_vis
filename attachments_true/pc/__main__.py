@@ -1,6 +1,6 @@
 import telebot, time, os, chardet, logging, sys
 from telebot import types
-from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, warning
+from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, vs_ch
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
 from blacklist import check_user_existence, ban_user, unban_user
 from database import save_story, get_stories, delete_story
@@ -207,6 +207,9 @@ def process_post(message: types.Message):
             elif message.content_type == 'location':
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
                 bot.send_location(id_chat_info, latitude=message.location.latitude, longitude=message.location.longitude)
+
+            elif message.content_type=='sticker':
+                bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
             else:
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
@@ -531,46 +534,6 @@ def welcome_new_members(message):
         
 
 
-admin_input = {}  # Переменная для хранения ввода администратора
-
-@bot.message_handler(commands=["send_all"])
-def send_all(message: types.Message):
-    if message.chat.type == 'private':
-        user_first_name = str(message.chat.first_name)
-        last_name = str(message.chat.last_name)
-        # Проверка имени пользователя на наличие только букв и цифр
-
-        if last_name == 'None':
-            last_name = ''
-        if user_first_name == 'None':
-            user_first_name = 'No Name'
-
-        def process_admin_input(message: types.Message):
-            user_input = message.text
-            send_newsletter(user_input)
-
-        if str(message.from_user.id) == str(id_acc):
-            bot.send_message(message.chat.id, "Введите текст для рассылки:")
-            bot.register_next_step_handler(message, process_admin_input)
-        else:
-            bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды😡")
-            bot.send_message(id_chat_info, f"#ввел_send_all\n\n{user_first_name} - {last_name} -- <code>{message.from_user.id}</code>",parse_mode='html')
-
-
-        def send_newsletter(text_to_send):
-            # Отправка сообщений пользователям
-            for user_id in get_user():
-                try:
-                    bot.send_photo(user_id, photo=warning, caption=text_to_send)
-                    time.sleep(2)
-                    update_user_active_status(user_id, True)
-                    bot.send_message(id_chat_info,f"#successful_mailing\n\nУдачная отправка новостей пользователю {user_id}")
-                except Exception as e:
-                    update_user_active_status(user_id, False)
-                    print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
-                    bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>\n\n<code>{str(e)}</code>",parse_mode='html')
-
-            bot.send_message(id_acc, "Рассылка выполнена успешно!")
 
 @bot.message_handler(commands=["ban"])
 def b_u(message: types.Message):
