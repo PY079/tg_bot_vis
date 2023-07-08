@@ -42,8 +42,8 @@ def start(m: types.Message):
 Для ознакомления команд введи или нажми на /menu\n
 В данный момент бот написан на 100%.
 Работает круглосуточно\n
-Если <b>возникают ошибки</b>, то пишите <a href='t.me//JKPyGtH'>сюда</a>\n
-Бот создан разработчиком: <a href ='t.me//JKPyGtH'>PY079</a>
+Если <b>возникают ошибки</b>, то пишите <a href='t.me//dev_vsl'>сюда</a>\n
+Бот создан разработчиком: <a href ='t.me//dev_vsl'>Joy</a>
 ''', parse_mode='html', disable_web_page_preview=True)
 
 @bot.message_handler(commands=['menu'], func=lambda message: not check_user_existence(message.from_user.id))
