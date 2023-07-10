@@ -211,7 +211,7 @@ def process_post(message: types.Message):
                 file_info = bot.get_file(message.sticker.file_id)
 
                 downloaded_file = bot.download_file(file_info.file_path)
-                file_path=f'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/pc/stik_{message.from_user.id}.webp'
+                file_path=f'/root/bots/tg_bot_vis/attachments_true/ihor/stik_{message.from_user.id}.webp'
                 file_info1 = bot.get_file(message.sticker.file_id)
                 file_path1 = file_info1.file_path
                 file_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path1}"
@@ -579,8 +579,8 @@ def b_u(message: types.Message):
         bot.register_next_step_handler(message, b_u21)
 
 def b_u21(message: types.Message):
-
     bot.send_video(id_acc,video=message.text)
+
 
 
 
