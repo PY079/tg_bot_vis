@@ -1,7 +1,7 @@
-import telebot, time, os, chardet, logging, sys
+import telebot, time, os, chardet, logging, sys, os.path
 from telebot import types
-from data import t_token_tg_b, t_id_att, t_id_channel, id_chat_info, t_blyat, id_acc, t_warning
-# from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, warning
+# from data import token_tg_b, id_att, id_channel, id_chat_info, blyat, id_acc, vs_ch, stic
+from data import t_token_tg_b, t_id_att, t_id_channel, id_chat_info, t_blyat, id_acc, t_stic, vs_ch
 from attach import create_tables, check_user, save_media_entry, delete_media_entries
 from blacklist import check_user_existence, ban_user, unban_user
 from database import save_story, get_stories, delete_story
@@ -12,7 +12,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 
 os.system('cls')
-print('\n\nБОТ ЗАПУЩЕН\n\n')
+# print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(t_token_tg_b)
 
@@ -43,8 +43,8 @@ def start(m: types.Message):
 Для ознакомления команд введи или нажми на /menu\n
 В данный момент бот написан на 100%.
 Работает круглосуточно\n
-Если <b>возникают ошибки</b>, то пишите <a href='t.me//JKPyGtH'>сюда</a>\n
-Бот создан разработчиком: <a href ='t.me//JKPyGtH'>PY079</a>
+Если <b>возникают ошибки</b>, то пишите <a href='t.me//dev_vsl'>сюда</a>\n
+Бот создан разработчиком: <a href ='t.me//dev_vsl'>Joy</a>
 ''', parse_mode='html', disable_web_page_preview=True)
 
 @bot.message_handler(commands=['menu'], func=lambda message: not check_user_existence(message.from_user.id))
@@ -132,7 +132,7 @@ def process_post(message: types.Message):
                                         
                     print(story_text)
                     save_story(user_id, story_text.replace('<','[').replace('>',']'))  # Сохраняем историю в базе данных
-                    publish_stories(user_first_name, last_name,user_id)
+                    publish_stories(user_first_name, last_name)
                 
                 else: # Если сообщение содержит символ "/", отправляем уведомление о запрете команд
                     bot.send_message(message.from_user.id, "Извини, но нельзя отправлять команды/ссылки(\n\nПовтори вызов команды и снова отправь свою историю")
@@ -200,6 +200,35 @@ def process_post(message: types.Message):
 
                 else: bot.send_audio(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
+            elif message.content_type=='voice':
+                bot.send_audio(id_chat_info,message.voice.file_id ,caption=f'<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
+               
+
+            elif message.content_type=='video_note':
+                bot.send_message(id_chat_info,f'#video_note\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>\n\n<code>{message.video_note.file_id}</code>',parse_mode='html')
+
+            elif message.content_type=='sticker':
+     
+                # Получаем информацию о файле стикера
+                file_info = bot.get_file(message.sticker.file_id)
+
+                downloaded_file = bot.download_file(file_info.file_path)
+                file_path=f'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/pc/stik_{message.from_user.id}.webp'
+                file_info1 = bot.get_file(message.sticker.file_id)
+                file_path1 = file_info1.file_path
+                file_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path1}"
+                print(file_url)
+                with open(file_path, 'wb') as new_file:
+                    new_file.write(downloaded_file)
+                
+            
+                if os.path.exists(file_path):
+                    with open(file_path, 'rb') as photo_file:
+                        bot.send_photo(id_chat_info,photo_file ,caption=f'#post_stiker\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
+                if os.path.exists(file_path): os.remove(file_path)
+
+
+               
             elif message.content_type == 'poll':
 
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
@@ -212,9 +241,9 @@ def process_post(message: types.Message):
             else:
                 bot.send_message(id_chat_info, f"#sent_an_attachment\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
-        
 
-def publish_stories(fi, la, id):
+
+def publish_stories(fi, la):
     stories = get_stories()  # Получаем все истории из базы данных
 
 
@@ -223,11 +252,11 @@ def publish_stories(fi, la, id):
         if not story.sent:
             bot.send_message(t_id_channel, story.story_text)
             
-            bot.send_message(id, "Твоя история отправлена на публикацию")
+            bot.send_message(story.user_id, "Твоя история отправлена на публикацию")
             
-            if id in post_cont:post_cont.remove(id)
-            if id in post_can: post_can.remove(id)
-            if id in post_tr:post_tr.remove(id)
+            if story.user_id in post_cont:post_cont.remove(story.user_id)
+            if story.user_id in post_can: post_can.remove(story.user_id)
+            if story.user_id in post_tr:post_tr.remove(story.user_id)
             
             if len(story.story_text)>len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}'):
                 symbols1 = len(f'#text_in_post\n\n{fi} {la}\n{story.user_id}\n\n{story.story_text}') - len(story.story_text)
@@ -278,14 +307,13 @@ can_b =[]
 def handle_media_group(message: types.Message):
     user_id = message.from_user.id
 
-    if user_id not in cou:
-        cou[user_id] = []
+    if user_id not in cou: cou[user_id] = []
         
-    if user_id not in log_t:
-        log_t[user_id] = []
+    if user_id not in log_t: log_t[user_id] = []
 
-    if user_id not in can_add_media:
-        can_add_media.append(user_id)
+    if user_id not in can_add_media: can_add_media.append(user_id)
+
+    if user_id in can_b: can_b.remove(user_id)
 
     if len(cou[user_id]) == 0:
         markup2 = types.InlineKeyboardMarkup(row_width=2)
@@ -316,16 +344,15 @@ def at_p(message: types.Message):
     if attach_text == None:
         attach_text = ''
     else:
-        log_text = f'#attach\n\n{user_id}\n{user_first_name} {last_name}\n\n{attach_text}'
+        log_text = f'#attach\n\n{user_id} {user_first_name} {last_name}\n\n{attach_text}'
         if len(log_text) > 1024:
             diff = len(log_text) - 1024
-            log_text = f'#attach\n\n{user_id}\n{user_first_name} {last_name}\n\n{attach_text[:-diff]}'
+            log_text = f'#attach\n\n{user_id} {user_first_name} {last_name}\n\n{attach_text[:-diff]}'
 
     if len(attach_text) > 5 or len(attach_text) == 0:
         wor = check_advertising_text(attach_text)
         if wor is None:
             if user_id in can_add_media:
-                print(message)
                 if not ('//' in attach_text or '/start' in attach_text or '/menu' in attach_text or '/suggest_a_post' in attach_text or '/attach_a_message' in attach_text):
                     if message.content_type == 'video':
                         file_id = message.video.file_id
@@ -354,8 +381,8 @@ def at_p(message: types.Message):
 
                         if message.caption is None:
                             media1 = types.InputMediaAudio(file_id, caption=f"#attach\n<code>{message.from_user.id}</code> {user_first_name} {last_name}",parse_mode='html')
-                        cou[user_id].append(media1)
-                        log_t[user_id].append(media)
+                        cou[user_id].append(media)
+                        log_t[user_id].append(media1)
                     elif message.content_type == 'document':
                         file_id=message.document.file_id
                         media = types.InputMediaDocument(file_id, caption=attach_text)
@@ -365,6 +392,22 @@ def at_p(message: types.Message):
                             media1 = types.InputMediaDocument(file_id, caption=f"#attach\n<code>{message.from_user.id}</code> {user_first_name} {last_name}",parse_mode='html')
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
+                    
+                    elif message.content_type=='voice':
+                        file_id=message.voice.file_id
+                        media = types.InputMediaAudio(file_id, caption=attach_text)
+                        media1 = types.InputMediaAudio(file_id, caption=log_text)
+
+                        if message.caption is None:
+                            media1 = types.InputMediaAudio(file_id, caption=f"#attach\n<code>{message.from_user.id}</code> {user_first_name} {last_name}",parse_mode='html')
+                        cou[user_id].append(media)
+                        log_t[user_id].append(media1)
+
+                    elif message.content_type=='video_note':
+                        bot.send_message(message.from_user.id,'Кружки (video_note) не поддерживаются')
+                        bot.send_message(id_chat_info,f'#video_note\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>\n\n<code>{message.video_note.file_id}</code>',parse_mode='html')
+                    
+                    
                     else:
                         if message.content_type =='poll':
                             bot.send_message(message.from_user.id, 'Пока такое нельзя отправлять')
@@ -381,7 +424,7 @@ def at_p(message: types.Message):
                         
                         elif message.content_type=='sticker':
                             bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
-                            bot.send_message(message.from_user.id, 'Пока такое нельзя отправлять')
+                            bot.send_message(message.from_user.id, 'Такое нельзя отправлять')
                         else:
                             bot.send_message(id_chat_info, f"#sent_an_none\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
@@ -522,56 +565,30 @@ def add_media_callback(call):
 
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new_members(message):
-    if message.chat.id =='-1001956775026':
+    print(message)
+    if str(message.chat.id) ==vs_ch:
         new_members = message.new_chat_members
 
-
         for member in new_members:
-            bot.send_sticker(t_id_att, sticker='CAACAgIAAxkBAAILh2Sh1zai5ujZdQxTJlcfxNMUu2qGAALSFAACqfvJSasB3gKMKGXlLwQ',reply_to_message_id=message.message_id)
+            bot.send_sticker(vs_ch, sticker=t_stic,reply_to_message_id=message.id)
             time.sleep(2)
-        
 
 
-admin_input = {}  # Переменная для хранения ввода администратора
+@bot.message_handler(commands=["gv"])
+def b_u(message: types.Message):
+    if str(message.from_user.id) == str(id_acc):
+        bot.send_message(id_acc, 'Отправь мне id video, чтобы посмотреть его')
+        bot.register_next_step_handler(message, b_u21)
 
-@bot.message_handler(commands=["send_all"])
-def send_all(message: types.Message):
-    if message.chat.type == 'private':
-        user_first_name = str(message.chat.first_name)
-        last_name = str(message.chat.last_name)
-        # Проверка имени пользователя на наличие только букв и цифр
-
-        if last_name == 'None':
-            last_name = ''
-        if user_first_name == 'None':
-            user_first_name = 'No Name'
-
-        def process_admin_input(message: types.Message):
-            user_input = message.text
-            send_newsletter(user_input)
-
-        if str(message.from_user.id) == str(id_acc):
-            bot.send_message(message.chat.id, "Введите текст для рассылки:")
-            bot.register_next_step_handler(message, process_admin_input)
-        else:
-            bot.send_message(message.chat.id, "У вас нет прав на выполнение этой команды😡")
-            bot.send_message(id_chat_info, f"#ввел_send_all\n\n{user_first_name} - {last_name} -- <code>{message.from_user.id}</code>",parse_mode='html')
+def b_u21(message: types.Message):
+    file_path=''
+    bot.send_video(id_acc,video=message.text)
+    if os.path.exists(file_path): os.remove(file_path)
 
 
-        def send_newsletter(text_to_send):
-            # Отправка сообщений пользователям
-            for user_id in get_user():
-                try:
-                    bot.send_photo(user_id, photo=t_warning, caption=text_to_send)
-                    time.sleep(2)
-                    update_user_active_status(user_id, True)
-                    bot.send_message(id_chat_info,f"#successful_mailing\n\nУдачная отправка новостей пользователю {user_id}")
-                except Exception as e:
-                    update_user_active_status(user_id, False)
-                    print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
-                    bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>\n\n<code>{str(e)}</code>",parse_mode='html')
 
-            bot.send_message(id_acc, "Рассылка выполнена успешно!")
+
+
 
 @bot.message_handler(commands=["ban"])
 def b_u(message: types.Message):
@@ -627,47 +644,9 @@ def ub_u2(message: types.Message):
 
 
 
-@bot.message_handler(commands=["send_ch"])
-def send_ch(message: types.Message):
-    print(type(message.from_user.id))
-    print(type(id_acc))
-    if message.chat.type == 'private':
-
-        if str(message.from_user.id) == str(id_acc):
-
-
-            bot.send_photo(t_id_channel,t_warning,'''
-Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
-Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
-[Все текста, которые не отправились, отправьте повторно]\n
-Не бойтесь, рассылки будут только важные и не будет никакой рекламы
-
-Рассылку имеет право использовать <b>только <a href ='t.me/JKPyGtH'>создатель этого бота</a></b>
-
-[ ]- данное предложение будет всегда повторяться в рассылках''', parse_mode='html')
-
-            for user_id in get_user():
-                try:
-                    bot.send_photo(user_id, photo=t_warning, caption='''
-Бот залит на <b>хостинг</b> (чужой пк, который будет каждый день работать в другой стране)
-Иногда бот будет вылетать. Как только я замечу это, то <b>запущу его и сделаю рассылку</b>.\n
-[Все текста, которые не отправились, отправьте повторно]\n
-Не бойтесь, рассылки будут только важные и не будет никакой рекламы
-
-Рассылку имеет право использовать <b>только <a href ='t.me/JKPyGtH'>создатель этого бота</a></b>
-
-[ ]- данное предложение будет всегда повторяться в рассылках''', parse_mode='html')
-                except Exception as e:
-                    update_user_active_status(user_id, False)
-                    print(f"Ошибка при отправке новостей пользователю {user_id}: {str(e)}")
-                    bot.send_message(id_chat_info, f"#blocked_bot\n\n<code>{user_id}</code>",parse_mode='html')
-            bot.send_message(id_acc, "Рассылка выполнена успешно!")
-
-
-
 
 def main():
-    bot.polling()
+    bot.infinity_polling()
 
 if __name__ == "__main__":
     main()

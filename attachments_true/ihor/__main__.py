@@ -14,8 +14,7 @@ os.system('clear')
 # print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(token_tg_b)
-
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
@@ -199,8 +198,34 @@ def process_post(message: types.Message):
 
                 else: bot.send_audio(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
+            elif message.content_type=='voice':
+                bot.send_audio(id_chat_info,message.voice.file_id ,caption=f'<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
+               
+
+            elif message.content_type=='video_note':
+                bot.send_message(id_chat_info,f'#video_note\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>\n\n<code>{message.video_note.file_id}</code>',parse_mode='html')
+
             elif message.content_type=='sticker':
-                bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
+     
+                # Получаем информацию о файле стикера
+                file_info = bot.get_file(message.sticker.file_id)
+
+                downloaded_file = bot.download_file(file_info.file_path)
+                file_path=f'C:/Users/User/Desktop/tg_bot_mus/post_tg/1/attachments_true/pc/stik_{message.from_user.id}.webp'
+                file_info1 = bot.get_file(message.sticker.file_id)
+                file_path1 = file_info1.file_path
+                file_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path1}"
+                print(file_url)
+                with open(file_path, 'wb') as new_file:
+                    new_file.write(downloaded_file)
+                
+            
+                if os.path.exists(file_path):
+                    with open(file_path, 'rb') as photo_file:
+                        bot.send_photo(id_chat_info,photo_file ,caption=f'#post_stiker\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
+                if os.path.exists(file_path): os.remove(file_path)
+
+
                
             elif message.content_type == 'poll':
 
@@ -365,6 +390,22 @@ def at_p(message: types.Message):
                             media1 = types.InputMediaDocument(file_id, caption=f"#attach\n<code>{message.from_user.id}</code> {user_first_name} {last_name}",parse_mode='html')
                         cou[user_id].append(media)
                         log_t[user_id].append(media1)
+                    
+                    elif message.content_type=='voice':
+                        file_id=message.voice.file_id
+                        media = types.InputMediaAudio(file_id, caption=attach_text)
+                        media1 = types.InputMediaAudio(file_id, caption=log_text)
+
+                        if message.caption is None:
+                            media1 = types.InputMediaAudio(file_id, caption=f"#attach\n<code>{message.from_user.id}</code> {user_first_name} {last_name}",parse_mode='html')
+                        cou[user_id].append(media)
+                        log_t[user_id].append(media1)
+
+                    elif message.content_type=='video_note':
+                        bot.send_message(message.from_user.id,'Кружки (video_note) не поддерживаются')
+                        bot.send_message(id_chat_info,f'#video_note\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>\n\n<code>{message.video_note.file_id}</code>',parse_mode='html')
+                    
+                    
                     else:
                         if message.content_type =='poll':
                             bot.send_message(message.from_user.id, 'Пока такое нельзя отправлять')
@@ -529,7 +570,20 @@ def welcome_new_members(message):
         for member in new_members:
             bot.send_sticker(vs_ch, sticker=stic,reply_to_message_id=message.id)
             time.sleep(2)
-        
+
+
+@bot.message_handler(commands=["gv"])
+def b_u(message: types.Message):
+    if str(message.from_user.id) == str(id_acc):
+        bot.send_message(id_acc, 'Отправь мне id video, чтобы посмотреть его')
+        bot.register_next_step_handler(message, b_u21)
+
+def b_u21(message: types.Message):
+
+    bot.send_video(id_acc,video=message.text)
+
+
+
 
 
 
