@@ -199,7 +199,7 @@ def process_post(message: types.Message):
                 else: bot.send_audio(id_chat_info, message.audio.file_id, caption=f"#sent_an_attachment\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
             elif message.content_type=='voice':
-                bot.send_audio(id_chat_info,message.voice.file_id ,caption=f'<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
+                bot.send_audio(id_chat_info,message.voice.file_id ,caption=f'#send_voice\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
                
 
             elif message.content_type=='video_note':
