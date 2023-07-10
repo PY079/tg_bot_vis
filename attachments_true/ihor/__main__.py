@@ -14,7 +14,7 @@ os.system('clear')
 # print('\n\nБОТ ЗАПУЩЕН\n\n')
 
 bot = telebot.TeleBot(token_tg_b)
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 @bot.message_handler(commands=['start'], func=lambda message: not check_user_existence(message.from_user.id))
 def start(m: types.Message):
     if m.chat.type == 'private':
@@ -421,8 +421,25 @@ def at_p(message: types.Message):
                             bot.send_message(message.from_user.id, 'В этой функции нельзя писать текст без вложений\n\nИспользуй тогда /suggest_a_post')
                         
                         elif message.content_type=='sticker':
-                            bot.send_message(id_chat_info, f"#sent_an_stic\n Стикер\n<code>{message.sticker.file_id}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
                             bot.send_message(message.from_user.id, 'Такое нельзя отправлять')
+                             # Получаем информацию о файле стикера
+                            file_info = bot.get_file(message.sticker.file_id)
+
+                            downloaded_file = bot.download_file(file_info.file_path)
+                            file_path=f'/root/bots/tg_bot_vis/attachments_true/ihor/stik_{message.from_user.id}.webp'
+                            file_info1 = bot.get_file(message.sticker.file_id)
+                            file_path1 = file_info1.file_path
+                            file_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path1}"
+                            print(file_url)
+                            with open(file_path, 'wb') as new_file:
+                                new_file.write(downloaded_file)
+                            
+                        
+                            if os.path.exists(file_path):
+                                with open(file_path, 'rb') as photo_file:
+                                    bot.send_photo(id_chat_info,photo_file ,caption=f'#post_stiker\n\n<code>{user_first_name} {last_name}</code> -- <code>{user_id}</code>',parse_mode='html')
+                            if os.path.exists(file_path): os.remove(file_path)
+                            
                         else:
                             bot.send_message(id_chat_info, f"#sent_an_none\n Неизвестный тип вложения\n<code>{message}</code>\n\n{user_first_name} {last_name} -- <code>{user_id}</code>", parse_mode='html')
 
